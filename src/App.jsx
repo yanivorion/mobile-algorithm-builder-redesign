@@ -261,8 +261,8 @@ const STEPS = [
 ];
 
 const VIEW_MODES = [
-  { id: 'clean', name: 'Clean' },
-  { id: 'minimal', name: 'Minimal' },
+  { id: 'glass', name: 'Glass' },
+  { id: 'apple-spotlight', name: 'Apple Spotlight' },
 ];
 
 
@@ -656,7 +656,7 @@ function App() {
   } = useHeuristics();
   const [exportFormat, setExportFormat] = useState('csv');
   const [currentView, setCurrentView] = useState('library');
-  const [libraryViewMode, setLibraryViewMode] = useState('clean'); // 2 simple presets: clean, minimal
+  const [libraryViewMode, setLibraryViewMode] = useState('glass'); // 2 glass presets: glass, apple-spotlight
   const [libraryLayout, setLibraryLayout] = useState('list'); // 'list' or 'grid'
   const [historyView, setHistoryView] = useState(null); // { heuristicId, fieldName }
   const [expandedHeuristic, setExpandedHeuristic] = useState(null); // ID of expanded heuristic
@@ -1332,55 +1332,56 @@ function App() {
   // Get preset styles for accordion display modes
   const getPresetStyles = (preset, isHovered, isExpanded) => {
     const baseTransition = `all 300ms cubic-bezier(0.4, 0, 0.2, 1)`;
-    const borderRadius = 8;
+    const borderRadius = 12;
     const padding = 16;
-    const gap = 12;
     
     const textPrimary = colors.primaryText;
     const textSecondary = colors.secondaryText;
-    const borderColor = colors.border;
     const cardBackground = colors.cardBackground;
-    const backgroundColor = colors.background;
     
-    // Two simple, focused presets for collapsed/expanded states
+    // Two glass-style presets
     const presets = {
-      // Clean: Subtle borders with soft shadows
-      'clean': {
+      // Glass: Glass morphism with blur and transparency
+      'glass': {
         outer: {
           row: {
-            background: cardBackground,
-            borderRadius: borderRadius,
-            padding: `${padding}px ${padding * 1.25}px`,
-            boxShadow: isHovered ? '0 4px 12px rgba(0,0,0,0.08)' : '0 1px 3px rgba(0,0,0,0.05)',
-            border: `1px solid ${borderColor}`,
+            background: 'rgba(255,255,255,0.25)',
+            backdropFilter: 'blur(20px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+            borderRadius: 16,
+            border: '1px solid rgba(255,255,255,0.3)',
+            boxShadow: isHovered 
+              ? '0 12px 40px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.5)'
+              : '0 8px 32px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.4)',
             cursor: 'pointer',
             transition: baseTransition,
-            display: 'grid',
-            gridTemplateColumns: '180px 140px 140px 1fr 100px 32px',
-            alignItems: 'center',
-            gap: gap,
-            marginBottom: '2px',
+            marginBottom: '12px',
+            overflow: 'hidden',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif',
           },
         },
       },
-      // Minimal: Line separators only
-      'minimal': {
+      // Apple Spotlight: Clean Apple-style with subtle background
+      'apple-spotlight': {
         outer: {
           row: {
-            padding: `${padding}px 0`,
-            borderBottom: `1px solid ${borderColor}`,
+            background: 'rgba(255,255,255,0.72)',
+            backdropFilter: 'blur(40px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+            borderRadius: 12,
+            border: '0.5px solid rgba(0,0,0,0.1)',
+            boxShadow: '0 25px 50px rgba(0,0,0,0.15), 0 0 0 0.5px rgba(0,0,0,0.05)',
             cursor: 'pointer',
             transition: baseTransition,
-            display: 'flex',
-            alignItems: 'center',
-            gap: gap * 2,
-            background: isHovered ? backgroundColor : 'transparent',
+            marginBottom: '12px',
+            overflow: 'hidden',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif',
           },
         },
       },
     };
     
-    return presets[preset] || presets['clean'];
+    return presets[preset] || presets['glass'];
   };
 
   // Render Library View
@@ -1539,29 +1540,6 @@ function App() {
           </div>
         )}
 
-        {/* Table Header - Only show for clean preset in list mode */}
-        {heuristics.length > 0 && libraryLayout === 'list' && libraryViewMode === 'clean' && (
-          <div style={{
-            padding: '16px 48px',
-            borderBottom: `1px solid ${colors.border}`,
-            display: 'grid',
-            gridTemplateColumns: '180px 140px 140px 1fr 100px 40px',
-            gap: '16px',
-            fontSize: '11px',
-            fontWeight: '500',
-            color: colors.secondaryText,
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-          }}>
-            <div>ID</div>
-            <div>Category</div>
-            <div>Subject</div>
-            <div>Element</div>
-            <div>Status</div>
-            <div></div>
-          </div>
-        )}
-
         {/* Content - Accordion List or Grid */}
         <div style={{ 
           flex: 1, 
@@ -1628,16 +1606,10 @@ function App() {
                   <div key={h.id} style={{
                     marginBottom: libraryLayout === 'grid' ? '0' : '12px',
                   }}>
-                    {/* Collapsed Row with Preset Styles */}
+                    {/* Collapsed Row - Glass Style */}
                     <div 
                       style={{
                         ...presetStyles.outer.row,
-                        ...(libraryLayout === 'list' ? { 
-                          padding: '24px 32px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                        } : {}),
                       }}
                       onMouseEnter={() => setHoveredHeuristic(h.id)}
                       onMouseLeave={() => setHoveredHeuristic(null)}
@@ -1649,97 +1621,110 @@ function App() {
                         setExpandedHeuristic(isExpanded ? null : h.id);
                       }}
                     >
-                      {/* Left side: Element name as title + category info */}
-                      <div style={{ flex: 1 }}>
-                        <div style={{ 
-                          fontSize: '18px', 
-                          fontWeight: '500',
-                          color: colors.primaryText,
-                          marginBottom: '4px',
-                        }}>
-                          {(h.step1_who_element || 'Element').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                        </div>
-                        <div style={{ 
-                          fontSize: '14px',
-                          color: colors.secondaryText,
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                        }}>
-                          <span>{(h.step3a_category || 'Layout').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
-                          {h.step2_where_parent && h.step2_where_parent !== 'any' && (
-                            <>
-                              <span>·</span>
-                              <span>{(h.step2_where_parent || '').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
-                            </>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Right side: ID, Status, Chevron */}
-                      <div style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        gap: '16px',
+                      {/* Inner wrapper for glass preset */}
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: libraryViewMode === 'glass' ? '20px 24px' : '14px 16px',
+                        background: isHovered && libraryViewMode === 'glass' ? 'rgba(255,255,255,0.15)' : 
+                                   isHovered && libraryViewMode === 'apple-spotlight' ? 'rgba(0,122,255,0.1)' : 'transparent',
+                        transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+                        borderRadius: libraryViewMode === 'apple-spotlight' ? '8px' : '0',
+                        margin: libraryViewMode === 'apple-spotlight' ? '4px' : '0',
                       }}>
-                        {/* ID */}
-                        <div style={{ 
-                          fontSize: '13px', 
-                          fontFamily: 'monospace',
-                          color: colors.secondaryText,
-                          background: colors.background,
-                          padding: '6px 12px',
-                          borderRadius: '6px',
-                        }}>
-                          {h.id}
+                        {/* Left side: Element name + category */}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ 
+                            fontSize: libraryViewMode === 'glass' ? '16px' : '15px',
+                            fontWeight: libraryViewMode === 'glass' ? '600' : '500',
+                            color: colors.primaryText,
+                            letterSpacing: '-0.01em',
+                            marginBottom: '4px',
+                          }}>
+                            {(h.step1_who_element || 'Element').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                          </div>
+                          <div style={{ 
+                            fontSize: '13px',
+                            color: colors.secondaryText,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                          }}>
+                            {(h.step3a_category || 'Layout').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                            {h.step2_where_parent && h.step2_where_parent !== 'any' && (
+                              <> · {(h.step2_where_parent || '').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</>
+                            )}
+                          </div>
                         </div>
 
-                        {/* Status */}
-                        <div onClick={(e) => e.stopPropagation()}>
-                          <select
-                            value={h.status || 'Active'}
-                            onChange={(e) => updateStatus(h.id, e.target.value)}
-                            style={{
-                              padding: '6px 12px',
-                              fontSize: '13px',
-                              fontWeight: '500',
-                              border: 'none',
-                              borderRadius: '6px',
-                              background: (() => {
-                                const status = h.status || 'Active';
-                                if (status === 'Active') return '#F0FDF4';
-                                if (status === 'Pending') return '#FEF3C7';
-                                if (status === 'Canceled') return '#F4F4F5';
-                                return '#F0FDF4';
-                              })(),
-                              color: (() => {
-                                const status = h.status || 'Active';
-                                if (status === 'Active') return '#166534';
-                                if (status === 'Pending') return '#92400E';
-                                if (status === 'Canceled') return '#71717A';
-                                return '#166534';
-                              })(),
-                              cursor: 'pointer',
-                              outline: 'none',
-                              appearance: 'none',
-                              WebkitAppearance: 'none',
-                              MozAppearance: 'none',
-                            }}
-                          >
-                            {STATUS_OPTIONS.map(status => (
-                              <option key={status.value} value={status.value}>{status.value}</option>
-                            ))}
-                          </select>
-                        </div>
-
-                        {/* Chevron Icon */}
+                        {/* Right side: ID, Status, Chevron */}
                         <div style={{ 
-                          transition: 'transform 200ms ease-out',
-                          transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                          display: 'flex',
-                          alignItems: 'center',
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: libraryViewMode === 'glass' ? '16px' : '10px',
                         }}>
-                          <ChevronIcon style={{ width: 18, height: 18, color: colors.secondaryText }} />
+                          {/* ID Badge */}
+                          <div style={{ 
+                            fontSize: '12px', 
+                            fontFamily: 'monospace',
+                            color: colors.primaryText,
+                            background: libraryViewMode === 'glass' 
+                              ? 'rgba(255,255,255,0.4)'
+                              : 'rgba(0,0,0,0.05)',
+                            backdropFilter: libraryViewMode === 'glass' ? 'blur(10px)' : 'none',
+                            padding: '6px 12px',
+                            borderRadius: libraryViewMode === 'glass' ? '20px' : '6px',
+                            border: libraryViewMode === 'glass' ? '1px solid rgba(255,255,255,0.3)' : 'none',
+                          }}>
+                            {h.id}
+                          </div>
+
+                          {/* Status */}
+                          <div onClick={(e) => e.stopPropagation()}>
+                            <select
+                              value={h.status || 'Active'}
+                              onChange={(e) => updateStatus(h.id, e.target.value)}
+                              style={{
+                                padding: '6px 12px',
+                                fontSize: '13px',
+                                fontWeight: libraryViewMode === 'glass' ? '600' : '500',
+                                border: 'none',
+                                borderRadius: '6px',
+                                background: 'transparent',
+                                color: (() => {
+                                  const status = h.status || 'Active';
+                                  if (status === 'Active') return '#22C55E';
+                                  if (status === 'Pending') return '#F59E0B';
+                                  if (status === 'Canceled') return '#6B7280';
+                                  return '#22C55E';
+                                })(),
+                                cursor: 'pointer',
+                                outline: 'none',
+                                appearance: 'none',
+                                WebkitAppearance: 'none',
+                                MozAppearance: 'none',
+                              }}
+                            >
+                              {STATUS_OPTIONS.map(status => (
+                                <option key={status.value} value={status.value}>{status.value}</option>
+                              ))}
+                            </select>
+                          </div>
+
+                          {/* Chevron Icon */}
+                          <div style={{ 
+                            transition: 'transform 200ms ease-out',
+                            transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                            display: 'flex',
+                            alignItems: 'center',
+                          }}>
+                            <ChevronIcon style={{ 
+                              width: libraryViewMode === 'glass' ? 18 : 16, 
+                              height: libraryViewMode === 'glass' ? 18 : 16, 
+                              color: colors.secondaryText 
+                            }} />
+                          </div>
                         </div>
                       </div>
                     </div>
