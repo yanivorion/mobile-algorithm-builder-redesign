@@ -1734,997 +1734,255 @@ function App() {
                       <div style={{
                         padding: '32px 48px 40px',
                         background: colors.background,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '12px',
                       }}>
-                        {/* Edit Mode Controls */}
-                        <div style={{ 
-                          display: 'flex', 
-                          justifyContent: 'flex-end',
-                          marginBottom: '24px',
-                          gap: '12px',
-                        }}>
-                          {editModeHeuristic === h.id ? (
-                            <>
-                              <button
-                                onClick={() => {
-                                  setEditModeHeuristic(null);
-                                  setEditingField(null);
-                                }}
-                                style={{
-                                  padding: '10px 18px',
-                                  background: colors.cardBackground,
-                                  border: `1px solid ${colors.border}`,
-                                  borderRadius: '8px',
-                                  cursor: editModeHeuristic === h.id ? 'pointer' : 'default',
-                                  fontSize: '13px',
-                                  fontWeight: '500',
-                                  color: colors.secondaryText,
-                                  transition: 'all 200ms ease-out',
-                                }}
-                                onMouseEnter={(e) => {
-                                  e.currentTarget.style.background = colors.background;
-                                  e.currentTarget.style.transform = 'translateY(-1px)';
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.currentTarget.style.background = colors.cardBackground;
-                                  e.currentTarget.style.transform = 'translateY(0)';
-                                }}
-                              >
-                                Cancel
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setEditModeHeuristic(null);
-                                  setEditingField(null);
-                                }}
-                                style={{
-                                  padding: '10px 20px',
-                                  background: colors.primaryText,
-                                  border: 'none',
-                                  borderRadius: '8px',
-                                  cursor: editModeHeuristic === h.id ? 'pointer' : 'default',
-                                  fontSize: '13px',
-                                  fontWeight: '500',
-                                  color: colors.cardBackground,
-                                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                                  transition: 'all 200ms ease-out',
-                                }}
-                                onMouseEnter={(e) => {
-                                  e.currentTarget.style.transform = 'translateY(-2px)';
-                                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.currentTarget.style.transform = 'translateY(0)';
-                                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
-                                }}
-                              >
-                                Save Changes
-                              </button>
-                            </>
-                          ) : (
-                            <button
-                              onClick={() => setEditModeHeuristic(h.id)}
+                        {/* Step 2: Parent Container */}
+                        <div
+                          style={{
+                            backgroundColor: colors.cardBackground,
+                            borderRadius: '12px',
+                            padding: '20px',
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                            border: `1px solid ${colors.border}`,
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                            <div
                               style={{
-                                padding: '10px 18px',
-                                background: colors.cardBackground,
-                                border: `1px solid ${colors.border}`,
-                                borderRadius: '8px',
-                                cursor: 'pointer',
-                                fontSize: '13px',
-                                fontWeight: '500',
-                                color: colors.primaryText,
+                                width: '32px',
+                                height: '32px',
+                                borderRadius: '50%',
+                                backgroundColor: colors.background,
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: '8px',
-                                transition: 'all 200ms ease-out',
-                              }}
-                              onMouseEnter={(e) => {
-                                e.currentTarget.style.background = colors.primaryText;
-                                e.currentTarget.style.color = colors.cardBackground;
-                                e.currentTarget.style.transform = 'translateY(-1px)';
-                                e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
-                              }}
-                              onMouseLeave={(e) => {
-                                e.currentTarget.style.background = colors.cardBackground;
-                                e.currentTarget.style.color = colors.primaryText;
-                                e.currentTarget.style.transform = 'translateY(0)';
-                                e.currentTarget.style.boxShadow = 'none';
-                              }}
-                            >
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                              </svg>
-                              Edit
-                            </button>
-                          )}
-                        </div>
-
-                        {/* Editable Summary Row - Matches Collapsed Structure */}
-                        <div style={{
-                          display: 'grid',
-                          gridTemplateColumns: '180px 140px 140px 1fr 100px 40px',
-                          gap: '16px',
-                          marginBottom: '32px',
-                          padding: '20px',
-                          background: colors.cardBackground,
-                          borderRadius: '8px',
-                          border: `1px solid ${colors.border}`,
-                        }}>
-                          {/* ID (Read-only) */}
-                          <div>
-                            <div style={{ 
-                              fontSize: '11px', 
-                              fontWeight: '500',
-                              color: colors.secondaryText,
-                              textTransform: 'uppercase',
-                              letterSpacing: '0.05em',
-                              marginBottom: '8px',
-                            }}>ID</div>
-                            <div style={{ 
-                              fontSize: '13px', 
-                              fontFamily: 'monospace',
-                              color: colors.secondaryText,
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap',
-                            }}>
-                              {h.id}
-                            </div>
-                          </div>
-
-                          {/* Category (Editable) */}
-                          <div>
-                            <div style={{ 
-                              fontSize: '11px', 
-                              fontWeight: '500',
-                              color: colors.secondaryText,
-                              textTransform: 'uppercase',
-                              letterSpacing: '0.05em',
-                              marginBottom: '8px',
-                            }}>Category</div>
-                            {editModeHeuristic === h.id && editingField?.heuristicId === h.id && editingField?.fieldName === 'step3a_category' ? (
-                              <select
-                                value={editingField.value}
-                                onChange={(e) => setEditingField({ ...editingField, value: e.target.value })}
-                                onBlur={() => {
-                                  updateHeuristicField(h.id, 'step3a_category', editingField.value);
-                                  setEditingField(null);
-                                }}
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') {
-                                    updateHeuristicField(h.id, 'step3a_category', editingField.value);
-                                    setEditingField(null);
-                                  }
-                                  if (e.key === 'Escape') {
-                                    setEditingField(null);
-                                  }
-                                }}
-                                autoFocus
-                                style={{
-                                  width: '100%',
-                                  padding: '6px 8px',
-                                  fontSize: '13px',
-                                  border: `1px solid ${colors.border}`,
-                                  borderRadius: '4px',
-                                }}
-                              >
-                                {CATEGORIES.map(cat => (
-                                  <option key={cat.id} value={cat.id}>
-                                    {cat.name}
-                                  </option>
-                                ))}
-                              </select>
-                            ) : (
-                              <div 
-                                onClick={() => editModeHeuristic === h.id && setEditingField({ heuristicId: h.id, fieldName: 'step3a_category', value: h.step3a_category })}
-                                style={{ 
-                                  fontSize: '13px', 
-                                  color: colors.primaryText,
-                                  cursor: editModeHeuristic === h.id ? 'pointer' : 'default',
-                                  padding: '6px 8px',
-                                  borderRadius: '4px',
-                                  border: `1px solid transparent`,
-                                  transition: 'all 150ms',
-                                }}
-                                onMouseEnter={(e) => editModeHeuristic === h.id && (e.currentTarget.style.background = colors.background)}
-                                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                              >
-                                {(h.step3a_category || 'Layout').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Subject (Editable) */}
-                          <div>
-                            <div style={{ 
-                              fontSize: '11px', 
-                              fontWeight: '500',
-                              color: colors.secondaryText,
-                              textTransform: 'uppercase',
-                              letterSpacing: '0.05em',
-                              marginBottom: '8px',
-                            }}>Subject</div>
-                            {editModeHeuristic === h.id && editingField?.heuristicId === h.id && editingField?.fieldName === 'step3b_subcategory' ? (
-                              <select
-                                value={editingField.value}
-                                onChange={(e) => setEditingField({ ...editingField, value: e.target.value })}
-                                onBlur={() => {
-                                  updateHeuristicField(h.id, 'step3b_subcategory', editingField.value);
-                                  setEditingField(null);
-                                }}
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') {
-                                    updateHeuristicField(h.id, 'step3b_subcategory', editingField.value);
-                                    setEditingField(null);
-                                  }
-                                  if (e.key === 'Escape') {
-                                    setEditingField(null);
-                                  }
-                                }}
-                                autoFocus
-                                style={{
-                                  width: '100%',
-                                  padding: '6px 8px',
-                                  fontSize: '13px',
-                                  border: `1px solid ${colors.border}`,
-                                  borderRadius: '4px',
-                                }}
-                              >
-                                {SUBCATEGORIES[h.step3a_category]?.map(sub => (
-                                  <option key={sub} value={sub}>
-                                    {sub.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                                  </option>
-                                ))}
-                              </select>
-                            ) : (
-                              <div 
-                                onClick={() => editModeHeuristic === h.id && setEditingField({ heuristicId: h.id, fieldName: 'step3b_subcategory', value: h.step3b_subcategory })}
-                                style={{ 
-                                  fontSize: '13px', 
-                                  color: colors.primaryText,
-                                  cursor: editModeHeuristic === h.id ? 'pointer' : 'default',
-                                  padding: '6px 8px',
-                                  borderRadius: '4px',
-                                  border: `1px solid transparent`,
-                                  transition: 'all 150ms',
-                                }}
-                                onMouseEnter={(e) => editModeHeuristic === h.id && (e.currentTarget.style.background = colors.background)}
-                                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                              >
-                                {subject}
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Element (Editable) */}
-                          <div>
-                            <div style={{ 
-                              fontSize: '11px', 
-                              fontWeight: '500',
-                              color: colors.secondaryText,
-                              textTransform: 'uppercase',
-                              letterSpacing: '0.05em',
-                              marginBottom: '8px',
-                            }}>Element</div>
-                            {editModeHeuristic === h.id && editingField?.heuristicId === h.id && editingField?.fieldName === 'step1_who_element' ? (
-                              <select
-                                value={editingField.value}
-                                onChange={(e) => setEditingField({ ...editingField, value: e.target.value })}
-                                onBlur={() => {
-                                  updateHeuristicField(h.id, 'step1_who_element', editingField.value);
-                                  setEditingField(null);
-                                }}
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') {
-                                    updateHeuristicField(h.id, 'step1_who_element', editingField.value);
-                                    setEditingField(null);
-                                  }
-                                  if (e.key === 'Escape') {
-                                    setEditingField(null);
-                                  }
-                                }}
-                                autoFocus
-                                style={{
-                                  width: '100%',
-                                  padding: '6px 8px',
-                                  fontSize: '13px',
-                                  border: `1px solid ${colors.border}`,
-                                  borderRadius: '4px',
-                                }}
-                              >
-                                {ELEMENT_OPTIONS.map(opt => (
-                                  <option key={opt.value} value={opt.value}>
-                                    {opt.label}
-                                  </option>
-                                ))}
-                              </select>
-                            ) : (
-                              <div 
-                                onClick={() => editModeHeuristic === h.id && setEditingField({ heuristicId: h.id, fieldName: 'step1_who_element', value: h.step1_who_element })}
-                                style={{ 
-                                  fontSize: '13px', 
-                                  color: colors.primaryText,
-                                  cursor: editModeHeuristic === h.id ? 'pointer' : 'default',
-                                  padding: '6px 8px',
-                                  borderRadius: '4px',
-                                  border: `1px solid transparent`,
-                                  transition: 'all 150ms',
-                                }}
-                                onMouseEnter={(e) => editModeHeuristic === h.id && (e.currentTarget.style.background = colors.background)}
-                                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                              >
-                                {(h.step1_who_element || '—').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Status (Editable) */}
-                          <div>
-                            <div style={{ 
-                              fontSize: '11px', 
-                              fontWeight: '500',
-                              color: colors.secondaryText,
-                              textTransform: 'uppercase',
-                              letterSpacing: '0.05em',
-                              marginBottom: '8px',
-                            }}>Status</div>
-                            <select
-                              value={h.status || 'Active'}
-                              onChange={(e) => updateStatus(h.id, e.target.value)}
-                              disabled={editModeHeuristic !== h.id}
-                              style={{
-                                padding: '6px 8px',
+                                justifyContent: 'center',
                                 fontSize: '13px',
-                                fontWeight: '500',
-                                border: `1px solid ${colors.border}`,
-                                borderRadius: '4px',
-                                background: (() => {
-                                  const status = h.status || 'Active';
-                                  if (status === 'Active') return '#F0FDF4';
-                                  if (status === 'Pending') return '#FEF3C7';
-                                  if (status === 'Canceled') return '#F3F4F6';
-                                  return '#F0FDF4';
-                                })(),
-                                color: (() => {
-                                  const status = h.status || 'Active';
-                                  if (status === 'Active') return '#166534';
-                                  if (status === 'Pending') return '#92400E';
-                                  if (status === 'Canceled') return '#6B7280';
-                                  return '#166534';
-                                })(),
-                                cursor: editModeHeuristic === h.id ? 'pointer' : 'not-allowed',
-                                outline: 'none',
-                                width: '100%',
-                                opacity: editModeHeuristic === h.id ? 1 : 0.6,
+                                fontWeight: 500,
+                                color: colors.secondaryText,
                               }}
                             >
-                              {STATUS_OPTIONS.map(status => (
-                                <option key={status.value} value={status.value}>{status.value}</option>
-                              ))}
-                            </select>
+                              2
+                            </div>
+                            <div style={{ fontSize: '11px', fontWeight: 500, color: colors.secondaryText, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                              PARENT CONTAINER
+                            </div>
                           </div>
-
-                          {/* Empty space for alignment */}
-                          <div></div>
+                          <div style={{ fontSize: '16px', fontWeight: 400, color: colors.primaryText, paddingLeft: '44px' }}>
+                            {(h.step2_where_parent || 'Any').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                          </div>
+                          </div>
+                        
+                        {/* Step 4: Condition */}
+                        <div
+                          style={{
+                            backgroundColor: colors.cardBackground,
+                            borderRadius: '12px',
+                            padding: '20px',
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                            border: `1px solid ${colors.border}`,
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                            <div
+                              style={{
+                                width: '32px',
+                                height: '32px',
+                                borderRadius: '50%',
+                                backgroundColor: colors.background,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: '13px',
+                                fontWeight: 500,
+                                color: colors.secondaryText,
+                              }}
+                            >
+                              4
+                            </div>
+                            <div style={{ fontSize: '11px', fontWeight: 500, color: colors.secondaryText, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                              CONDITION
+                            </div>
+                          </div>
+                          <div style={{ fontSize: '16px', fontWeight: 400, color: colors.primaryText, paddingLeft: '44px' }}>
+                            {h.step4_condition_type === 'none' || !h.step4_condition_type ? (
+                              <span>Always Apply (No Condition)</span>
+                            ) : (
+                              <>
+                                <span>
+                                  {(() => {
+                                    const type = h.step4_condition_type || '';
+                                    if (type === 'is_blank') return 'is Blank';
+                                    if (type === 'is_blank_desktop_height') return 'is Blank & Desktop Height';
+                                    if (type === 'desktop_width') return 'Desktop Width';
+                                    if (type === 'desktop_height') return 'Desktop Height';
+                                    if (type === 'desktop_font_size') return 'Desktop Font Size';
+                                    return type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                                  })()}
+                                </span>
+                              </>
+                            )}
+                          </div>
                         </div>
-
-                        {/* Full Heuristic Flow */}
-                        <div style={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          gap: '16px',
-                        }}>
-                          {/* Step 2: Parent (Editable) */}
-                          <div className={`${uniqueId}-step-card`} style={{
-                            padding: '18px 20px',
-                            background: colors.cardBackground,
-                            borderRadius: '10px',
-                            border: `1px solid ${colors.border}`,
+                        
+                        {/* Step 5: Action */}
+                        <div
+                          style={{
+                            backgroundColor: colors.cardBackground,
+                            borderRadius: '12px',
+                            padding: '20px',
                             boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-                            transition: 'all 250ms ease-out',
+                            border: `1px solid ${colors.border}`,
                           }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.borderColor = colors.secondaryText;
-                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
-                            e.currentTarget.style.transform = 'translateY(-2px)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.borderColor = colors.border;
-                            e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)';
-                            e.currentTarget.style.transform = 'translateY(0)';
-                          }}>
-                            <div style={{ 
-                              fontSize: '10px', 
-                              fontWeight: '600',
-                              color: colors.secondaryText,
-                              textTransform: 'uppercase',
-                              letterSpacing: '0.08em',
-                              marginBottom: '10px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '8px',
-                            }}>
-                              <span style={{ 
-                                display: 'inline-flex',
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                            <div
+                              style={{
+                                width: '32px',
+                                height: '32px',
+                                borderRadius: '50%',
+                                backgroundColor: colors.background,
+                                display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                width: '18px',
-                                height: '18px',
-                                borderRadius: '50%',
-                                background: 'rgba(0,0,0,0.06)',
-                                fontSize: '9px',
-                                fontWeight: '600',
-                              }}>2</span>
-                              Parent Container
+                                fontSize: '13px',
+                                fontWeight: 500,
+                                color: colors.secondaryText,
+                              }}
+                            >
+                              5
                             </div>
-                            {editModeHeuristic === h.id && editingField?.heuristicId === h.id && editingField?.fieldName === 'step2_where_parent' ? (
-                              <select
-                                value={editingField.value}
-                                onChange={(e) => setEditingField({ ...editingField, value: e.target.value })}
-                                onBlur={() => {
-                                  updateHeuristicField(h.id, 'step2_where_parent', editingField.value);
-                                  setEditingField(null);
-                                }}
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') {
-                                    updateHeuristicField(h.id, 'step2_where_parent', editingField.value);
-                                    setEditingField(null);
-                                  }
-                                  if (e.key === 'Escape') {
-                                    setEditingField(null);
-                                  }
-                                }}
-                                autoFocus
-                                style={{
-                                  width: '100%',
-                                  padding: '8px 12px',
-                                  fontSize: '15px',
-                                  border: `1px solid ${colors.border}`,
-                                  borderRadius: '4px',
-                                }}
-                              >
-                                {PARENT_OPTIONS.map(opt => (
-                                  <option key={opt.value} value={opt.value}>
-                                    {opt.label}
-                                  </option>
-                                ))}
-                              </select>
-                            ) : (
-                              <div 
-                                onClick={() => editModeHeuristic === h.id && setEditingField({ heuristicId: h.id, fieldName: 'step2_where_parent', value: h.step2_where_parent })}
-                                className={editModeHeuristic === h.id ? `${uniqueId}-editable-field` : ''}
-                                style={{ 
-                                  fontSize: '15px', 
-                                  color: colors.primaryText,
-                                  cursor: editModeHeuristic === h.id ? 'pointer' : 'default',
-                                  padding: '8px 12px',
-                                  borderRadius: '6px',
-                                }}
-                              >
-                                {(h.step2_where_parent || 'Any').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Step 4: Condition (Editable) */}
-                          <div className={`${uniqueId}-step-card`} style={{
-                            padding: '18px 20px',
-                            background: colors.cardBackground,
-                            borderRadius: '10px',
-                            border: `1px solid ${colors.border}`,
-                            boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-                            transition: 'all 250ms ease-out',
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.borderColor = colors.secondaryText;
-                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
-                            e.currentTarget.style.transform = 'translateY(-2px)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.borderColor = colors.border;
-                            e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)';
-                            e.currentTarget.style.transform = 'translateY(0)';
-                          }}>
-                            <div style={{ 
-                              fontSize: '10px', 
-                              fontWeight: '600',
-                              color: colors.secondaryText,
-                              textTransform: 'uppercase',
-                              letterSpacing: '0.08em',
-                              marginBottom: '10px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '8px',
-                            }}>
-                              <span style={{ 
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                width: '18px',
-                                height: '18px',
-                                borderRadius: '50%',
-                                background: 'rgba(0,0,0,0.06)',
-                                fontSize: '9px',
-                                fontWeight: '600',
-                              }}>4</span>
-                              Condition
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                              {/* Condition Type */}
-                              {editModeHeuristic === h.id && editingField?.heuristicId === h.id && editingField?.fieldName === 'step4_condition_type' ? (
-                                <select
-                                  value={editingField.value}
-                                  onChange={(e) => setEditingField({ ...editingField, value: e.target.value })}
-                                  onBlur={() => {
-                                    updateHeuristicField(h.id, 'step4_condition_type', editingField.value);
-                                    setEditingField(null);
-                                  }}
-                                  onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                      updateHeuristicField(h.id, 'step4_condition_type', editingField.value);
-                                      setEditingField(null);
-                                    }
-                                    if (e.key === 'Escape') {
-                                      setEditingField(null);
-                                    }
-                                  }}
-                                  autoFocus
-                                  style={{
-                                    width: '100%',
-                                    padding: '8px 12px',
-                                    fontSize: '15px',
-                                    border: `1px solid ${colors.border}`,
-                                    borderRadius: '4px',
-                                  }}
-                                >
-                                  {CONDITION_TYPES.map(opt => (
-                                    <option key={opt.value} value={opt.value}>
-                                      {opt.label}
-                                    </option>
-                                  ))}
-                                </select>
-                              ) : (
-                                <div 
-                                  onClick={() => editModeHeuristic === h.id && setEditingField({ heuristicId: h.id, fieldName: 'step4_condition_type', value: h.step4_condition_type })}
-                                  className={editModeHeuristic === h.id ? `${uniqueId}-editable-field` : ''}
-                                  style={{ 
-                                    fontSize: '15px', 
-                                    color: colors.primaryText,
-                                    cursor: editModeHeuristic === h.id ? 'pointer' : 'default',
-                                    padding: '8px 12px',
-                                    borderRadius: '6px',
-                                  }}
-                                >
-                                  {h.step4_condition_type === 'none' || !h.step4_condition_type ? (
-                                    <span>Always Apply (No Condition)</span>
-                                  ) : (
-                                    <>
-                                      <span>
-                                        {(() => {
-                                          const type = h.step4_condition_type || '';
-                                          if (type === 'is_blank') return 'is Blank';
-                                          if (type === 'is_blank_desktop_height') return 'is Blank & Desktop Height';
-                                          if (type === 'desktop_width') return 'Desktop Width';
-                                          if (type === 'desktop_height') return 'Desktop Height';
-                                          if (type === 'desktop_font_size') return 'Desktop Font Size';
-                                          return type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                                        })()}
-                                      </span>
-                                    </>
-                                  )}
-                                </div>
-                              )}
-                              
-                              {/* Condition Value */}
-                              {h.step4_condition_type && h.step4_condition_type !== 'none' && (
-                                editModeHeuristic === h.id && editingField?.heuristicId === h.id && editingField?.fieldName === 'step4_condition_value' ? (
-                                  <input
-                                    type="text"
-                                    value={editingField.value}
-                                    onChange={(e) => setEditingField({ ...editingField, value: e.target.value })}
-                                    onBlur={() => {
-                                      updateHeuristicField(h.id, 'step4_condition_value', editingField.value);
-                                      setEditingField(null);
-                                    }}
-                                    onKeyDown={(e) => {
-                                      if (e.key === 'Enter') {
-                                        updateHeuristicField(h.id, 'step4_condition_value', editingField.value);
-                                        setEditingField(null);
-                                      }
-                                      if (e.key === 'Escape') {
-                                        setEditingField(null);
-                                      }
-                                    }}
-                                    autoFocus
-                                    placeholder="e.g., lte_200px, gt_100px"
-                                    style={{
-                                      width: '100%',
-                                      padding: '8px 12px',
-                                      fontSize: '15px',
-                                      border: `1px solid ${colors.border}`,
-                                      borderRadius: '4px',
-                                    }}
-                                  />
-                                ) : (
-                                  <div 
-                                    onClick={() => editModeHeuristic === h.id && setEditingField({ heuristicId: h.id, fieldName: 'step4_condition_value', value: h.step4_condition_value })}
-                                    className={editModeHeuristic === h.id ? `${uniqueId}-editable-field` : ''}
-                                    style={{ 
-                                      fontSize: '15px', 
-                                      color: '#E85D3B',
-                                      fontWeight: '400',
-                                      cursor: editModeHeuristic === h.id ? 'pointer' : 'default',
-                                      padding: '8px 12px',
-                                      borderRadius: '6px',
-                                    }}
-                                  >
-                                    {(h.step4_condition_value || '')
-                                      .replace(/true_/gi, '')
-                                      .replace(/(\d+)to(\d+)/g, '$1:$2')
-                                      .replace(/lte_(\d+)px/gi, 'is equal / less than $1px')
-                                      .replace(/gte_(\d+)px/gi, 'is equal / greater than $1px')
-                                      .replace(/lt_(\d+)px/gi, 'is less than $1px')
-                                      .replace(/gt_(\d+)px/gi, 'is greater than $1px')
-                                      .replace(/portrait_/gi, 'Portrait: ')
-                                      .replace(/landscape_/gi, '')
-                                      .replace(/square_/gi, '')
-                                      .replace(/_/g, ' / ')
-                                      .replace(/px/g, 'px')
-                                    }
-                                  </div>
-                                )
-                              )}
+                            <div style={{ fontSize: '11px', fontWeight: 500, color: colors.secondaryText, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                              ACTION
                             </div>
                           </div>
-
-                          {/* Step 5: Action (Editable) */}
-                          <div className={`${uniqueId}-step-card`} style={{
-                            padding: '18px 20px',
-                            background: colors.cardBackground,
-                            borderRadius: '10px',
-                            border: `1px solid ${colors.border}`,
-                            boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-                            transition: 'all 250ms ease-out',
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.borderColor = colors.secondaryText;
-                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
-                            e.currentTarget.style.transform = 'translateY(-2px)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.borderColor = colors.border;
-                            e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)';
-                            e.currentTarget.style.transform = 'translateY(0)';
-                          }}>
-                            <div style={{ 
-                              fontSize: '10px', 
-                              fontWeight: '600',
-                              color: colors.secondaryText,
-                              textTransform: 'uppercase',
-                              letterSpacing: '0.08em',
-                              marginBottom: '10px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '8px',
-                            }}>
-                              <span style={{ 
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                width: '18px',
-                                height: '18px',
-                                borderRadius: '50%',
-                                background: 'rgba(0,0,0,0.06)',
-                                fontSize: '9px',
-                                fontWeight: '600',
-                              }}>5</span>
-                              Action
-                            </div>
-                            {editModeHeuristic === h.id && editingField?.heuristicId === h.id && editingField?.fieldName === 'step5_action' ? (
-                              <select
-                                value={editingField.value}
-                                onChange={(e) => setEditingField({ ...editingField, value: e.target.value })}
-                                onBlur={() => {
-                                  updateHeuristicField(h.id, 'step5_action', editingField.value);
-                                  setEditingField(null);
-                                }}
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') {
-                                    updateHeuristicField(h.id, 'step5_action', editingField.value);
-                                    setEditingField(null);
-                                  }
-                                  if (e.key === 'Escape') {
-                                    setEditingField(null);
-                                  }
-                                }}
-                                autoFocus
-                                style={{
-                                  width: '100%',
-                                  padding: '8px 12px',
-                                  fontSize: '15px',
-                                  border: `1px solid ${colors.border}`,
-                                  borderRadius: '4px',
-                                }}
-                              >
-                                {ACTION_OPTIONS.map(opt => (
-                                  <option key={opt.value} value={opt.value}>
-                                    {opt.label}
-                                  </option>
-                                ))}
-                              </select>
-                            ) : (
-                              <div 
-                                onClick={() => editModeHeuristic === h.id && setEditingField({ heuristicId: h.id, fieldName: 'step5_action', value: h.step5_action })}
-                                className={editModeHeuristic === h.id ? `${uniqueId}-editable-field` : ''}
-                                style={{ 
-                                  fontSize: '15px', 
-                                  color: colors.primaryText,
-                                  cursor: editModeHeuristic === h.id ? 'pointer' : 'default',
-                                  padding: '8px 12px',
-                                  borderRadius: '6px',
-                                }}
-                              >
-                                {(() => {
-                                  const action = h.step5_action || '—';
-                                  const output = h.step6_output || '';
-                                  if (output.includes('scaling-reset') || output.includes('scaling_reset')) return 'Reset Scaling';
-                                  if (action.includes('item_size') && output.includes('scaling')) return 'Reset Scaling';
-                                  if (action.includes('resize_aspect')) return 'Resize in Aspect Ratio';
-                                  if (action.includes('container_item_resize')) return 'Resize';
-                                  if (action.includes('resize')) return 'Resize';
-                                  if (action.includes('item_size')) return 'Resize';
-                                  if (action.includes('margin')) return 'Set Margin';
-                                  if (action.includes('padding')) return 'Set Padding';
-                                  if (action.includes('font_size')) return 'Resize Font';
-                                  if (action.includes('alignment')) return 'Align';
-                                  if (action.includes('hide')) return 'Hide';
-                                  if (action.includes('show')) return 'Show';
-                                  if (action.includes('keep')) return 'Keep';
-                                  if (action.includes('offset')) return 'Set Offset';
-                                  if (action.includes('rotation') || action.includes('set_rotation')) return 'Set Rotation';
-                                  if (action.includes('arrange')) return 'Arrange';
-                                  if (action.includes('menu_spacing')) return 'Menu Spacing';
-                                  return action.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                                })()}
-                              </div>
-                            )}
+                          <div style={{ fontSize: '16px', fontWeight: 400, color: colors.primaryText, paddingLeft: '44px' }}>
+                            {(() => {
+                              const action = h.step5_action || '—';
+                              const output = h.step6_output || '';
+                              if (output.includes('scaling-reset') || output.includes('scaling_reset')) return 'Reset Scaling';
+                              if (action.includes('item_size') && output.includes('scaling')) return 'Reset Scaling';
+                              if (action.includes('resize_aspect')) return 'Resize in Aspect Ratio';
+                              if (action.includes('container_item_resize')) return 'Resize';
+                              if (action.includes('resize')) return 'Resize';
+                              if (action.includes('item_size')) return 'Resize';
+                              if (action.includes('margin')) return 'Set Margin';
+                              if (action.includes('padding')) return 'Set Padding';
+                              if (action.includes('font_size')) return 'Resize Font';
+                              if (action.includes('alignment')) return 'Align';
+                              if (action.includes('hide')) return 'Hide';
+                              if (action.includes('show')) return 'Show';
+                              if (action.includes('keep')) return 'Keep';
+                              if (action.includes('offset')) return 'Set Offset';
+                              if (action.includes('rotation') || action.includes('set_rotation')) return 'Set Rotation';
+                              if (action.includes('arrange')) return 'Arrange';
+                              if (action.includes('menu_spacing')) return 'Menu Spacing';
+                              return action.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                            })()}
                           </div>
-
-                          {/* Step 6: Output (Editable) */}
-                          <div className={`${uniqueId}-step-card`} style={{
-                            padding: '18px 20px',
-                            background: '#3B7DED',
-                            borderRadius: '10px',
-                            border: 'none',
-                            boxShadow: '0 4px 12px rgba(59, 125, 237, 0.15)',
-                            transition: 'all 250ms ease-out',
+                        </div>
+                        
+                        {/* Step 6: Output - Blue Box */}
+                        <div
+                          style={{
+                            background: 'linear-gradient(135deg, #5B8DEF 0%, #3B7DED 100%)',
+                            borderRadius: '12px',
+                            padding: '20px',
+                            boxShadow: '0 2px 8px rgba(59, 125, 237, 0.15)',
                           }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.boxShadow = '0 6px 20px rgba(59, 125, 237, 0.25)';
-                            e.currentTarget.style.transform = 'translateY(-2px)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 125, 237, 0.15)';
-                            e.currentTarget.style.transform = 'translateY(0)';
-                          }}>
-                            <div style={{ 
-                              fontSize: '10px', 
-                              fontWeight: '600',
-                              color: 'rgba(255,255,255,0.85)',
-                              textTransform: 'uppercase',
-                              letterSpacing: '0.08em',
-                              marginBottom: '10px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '8px',
-                            }}>
-                              <span style={{ 
-                                display: 'inline-flex',
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                            <div
+                              style={{
+                                width: '32px',
+                                height: '32px',
+                                borderRadius: '50%',
+                                backgroundColor: 'rgba(255,255,255,0.2)',
+                                display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                width: '18px',
-                                height: '18px',
-                                borderRadius: '50%',
-                                background: 'rgba(255,255,255,0.2)',
-                                fontSize: '9px',
-                                fontWeight: '600',
+                                fontSize: '13px',
+                                fontWeight: 500,
                                 color: '#FFFFFF',
-                              }}>6</span>
-                              Output
+                              }}
+                            >
+                              6
                             </div>
-                            {editModeHeuristic === h.id && editingField?.heuristicId === h.id && editingField?.fieldName === 'step6_output' ? (
-                              <input
-                                type="text"
-                                value={editingField.value}
-                                onChange={(e) => setEditingField({ ...editingField, value: e.target.value })}
-                                onBlur={() => {
-                                  updateHeuristicField(h.id, 'step6_output', editingField.value);
-                                  setEditingField(null);
-                                }}
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') {
-                                    updateHeuristicField(h.id, 'step6_output', editingField.value);
-                                    setEditingField(null);
-                                  }
-                                  if (e.key === 'Escape') {
-                                    setEditingField(null);
-                                  }
-                                }}
-                                autoFocus
-                                placeholder="e.g., width-100pct_height-auto"
-                                style={{
-                                  width: '100%',
-                                  padding: '8px 12px',
-                                  fontSize: '15px',
-                                  border: `1px solid rgba(255,255,255,0.3)`,
-                                  borderRadius: '4px',
-                                  background: 'rgba(255,255,255,0.1)',
-                                  color: '#FFFFFF',
-                                }}
-                              />
-                            ) : (
-                              <div 
-                                onClick={() => editModeHeuristic === h.id && setEditingField({ heuristicId: h.id, fieldName: 'step6_output', value: h.step6_output })}
-                                className={editModeHeuristic === h.id ? `${uniqueId}-editable-field` : ''}
-                                style={{ 
-                                  fontSize: '15px', 
-                                  color: '#FFFFFF',
-                                  cursor: editModeHeuristic === h.id ? 'pointer' : 'default',
-                                  padding: '8px 12px',
-                                  borderRadius: '6px',
-                                  border: '1px solid transparent',
-                                }}
-                                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
-                                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                              >
-                                {(() => {
-                                  const output = h.step6_output || '—';
-                                  
-                                  if (output.includes('scaling-reset') || output.includes('scaling_reset')) {
-                                    const has100pct = output.includes('100pct') || output.includes('100%');
-                                    return (
-                                      <span style={{ fontFamily: 'monospace', fontSize: '14px' }}>
-                                        scaledValue × (desktopVW / mobileVW){has100pct ? ' [100% max]' : ''}
-                                      </span>
-                                    );
-                                  }
-                                  
-                                  const parseOutput = (str) => {
-                                    const results = [];
-                                    
-                                    const fontMatch = str.match(/font[_-]size[_-](\d+)px/);
-                                    if (fontMatch) {
-                                      results.push({ label: 'Font Size', value: `${fontMatch[1]}px` });
-                                    } else if (str.includes('font') && str.includes('keep')) {
-                                      results.push({ label: 'Font Size', value: 'Keep' });
-                                    }
-                                    
-                                    if (str.includes('width')) {
-                                      if (str.includes('100pct') || str.includes('100%')) {
-                                        results.push({ label: 'Width', value: '100%' });
-                                      } else if (str.match(/width[_-](\d+)px/)) {
-                                        const match = str.match(/width[_-](\d+)px/);
-                                        results.push({ label: 'Width', value: `${match[1]}px` });
-                                      } else if (str.includes('width-keep') || str.includes('width_keep')) {
-                                        results.push({ label: 'Width', value: 'Keep' });
-                                      } else if (str.includes('width-full')) {
-                                        results.push({ label: 'Width', value: '100%' });
-                                      }
-                                    }
-                                    
-                                    if (str.includes('height')) {
-                                      if (str.includes('height-auto') || str.includes('height_auto')) {
-                                        results.push({ label: 'Height', value: 'Auto' });
-                                      } else if (str.includes('height-keep') || str.includes('height_keep')) {
-                                        results.push({ label: 'Height', value: 'Keep' });
-                                      } else if (str.match(/height[_-](\d+)px/)) {
-                                        const match = str.match(/height[_-](\d+)px/);
-                                        results.push({ label: 'Height', value: `${match[1]}px` });
-                                      } else if (str.includes('aspect_ratio') || str.includes('aspect-ratio')) {
-                                        results.push({ label: 'Height', value: 'Aspect Ratio' });
-                                      }
-                                    }
-                                    
-                                    const marginMatch = str.match(/margin[_-](\w+)[_-](\d+)px/);
-                                    if (marginMatch) {
-                                      results.push({ label: `Margin ${marginMatch[1]}`, value: `${marginMatch[2]}px` });
-                                    }
-                                    
-                                    return results;
-                                  };
-                                  
-                                  const parsed = parseOutput(output);
-                                  
-                                  if (parsed.length > 0) {
-                                    return parsed.map((item, idx) => (
-                                      <div key={idx} style={{ marginBottom: idx < parsed.length - 1 ? '4px' : 0 }}>
-                                        <span style={{ opacity: 0.8 }}>{item.label}:</span>{' '}
-                                        <span style={{ fontWeight: '500' }}>{item.value}</span>
-                                      </div>
-                                    ));
-                                  }
-                                  
-                                  return <span>{output.replace(/_/g, ' ')}</span>;
-                                })()}
-                              </div>
-                            )}
+                            <div style={{ fontSize: '11px', fontWeight: 500, color: 'rgba(255,255,255,0.9)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                              OUTPUT
+                            </div>
                           </div>
-
-                          {/* Action Buttons */}
-                          <div style={{ 
-                            display: 'flex', 
-                            gap: '12px',
-                            paddingTop: '8px',
-                          }}>
-                            <button
-                              onClick={() => setHistoryView({ heuristicId: h.id, heuristic: h })}
-                              style={{
-                                padding: '10px 18px',
-                                background: colors.cardBackground,
-                                border: `1px solid ${colors.border}`,
-                                borderRadius: '8px',
-                                cursor: 'pointer',
-                                fontSize: '13px',
-                                fontWeight: '500',
-                                color: colors.primaryText,
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '8px',
-                                transition: 'all 200ms ease-out',
-                              }}
-                              onMouseEnter={(e) => {
-                                e.currentTarget.style.background = colors.background;
-                                e.currentTarget.style.borderColor = colors.primaryText;
-                                e.currentTarget.style.transform = 'translateY(-1px)';
-                                e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
-                              }}
-                              onMouseLeave={(e) => {
-                                e.currentTarget.style.background = colors.cardBackground;
-                                e.currentTarget.style.borderColor = colors.border;
-                                e.currentTarget.style.transform = 'translateY(0)';
-                                e.currentTarget.style.boxShadow = 'none';
-                              }}
-                            >
-                              <Icon name="history" size={14} color={colors.secondaryText} />
-                              View History
-                            </button>
-                            <button
-                              onClick={() => {
-                                if (window.confirm('Are you sure you want to delete this heuristic?')) {
-                                  deleteHeuristic(h.id);
-                                  setExpandedHeuristic(null);
+                          <div style={{ fontSize: '16px', fontWeight: 400, color: '#FFFFFF', paddingLeft: '44px', lineHeight: 1.6 }}>
+                            {(() => {
+                              const output = h.step6_output || '—';
+                              
+                              if (output.includes('scaling-reset') || output.includes('scaling_reset')) {
+                                const has100pct = output.includes('100pct') || output.includes('100%');
+                                return (
+                                  <span style={{ fontFamily: 'monospace', fontSize: '14px' }}>
+                                    scaledValue × (desktopVW / mobileVW){has100pct ? ' [100% max]' : ''}
+                                  </span>
+                                );
+                              }
+                              
+                              const parseOutput = (str) => {
+                                const results = [];
+                                
+                                const fontMatch = str.match(/font[_-]size[_-](\d+)px/);
+                                if (fontMatch) {
+                                  results.push({ label: 'Font Size', value: `${fontMatch[1]}px` });
+                                } else if (str.includes('font') && str.includes('keep')) {
+                                  results.push({ label: 'Font Size', value: 'Keep' });
                                 }
-                              }}
-                              style={{
-                                padding: '10px 18px',
-                                background: colors.cardBackground,
-                                border: `1px solid ${colors.border}`,
-                                borderRadius: '8px',
-                                cursor: 'pointer',
-                                fontSize: '13px',
-                                fontWeight: '500',
-                                color: colors.error,
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '8px',
-                                transition: 'all 200ms ease-out',
-                              }}
-                              onMouseEnter={(e) => {
-                                e.currentTarget.style.background = '#FEE2E2';
-                                e.currentTarget.style.borderColor = colors.error;
-                                e.currentTarget.style.transform = 'translateY(-1px)';
-                                e.currentTarget.style.boxShadow = '0 2px 8px rgba(239, 68, 68, 0.15)';
-                              }}
-                              onMouseLeave={(e) => {
-                                e.currentTarget.style.background = colors.cardBackground;
-                                e.currentTarget.style.borderColor = colors.border;
-                                e.currentTarget.style.transform = 'translateY(0)';
-                                e.currentTarget.style.boxShadow = 'none';
-                              }}
-                            >
-                              <Icon name="x" size={14} color={colors.error} />
-                              Delete
-                            </button>
+                                
+                                if (str.includes('width')) {
+                                  if (str.includes('100pct') || str.includes('100%')) {
+                                    results.push({ label: 'Width', value: '100%' });
+                                  } else if (str.match(/width[_-](\d+)px/)) {
+                                    const match = str.match(/width[_-](\d+)px/);
+                                    results.push({ label: 'Width', value: `${match[1]}px` });
+                                  } else if (str.includes('width-keep') || str.includes('width_keep')) {
+                                    results.push({ label: 'Width', value: 'Keep' });
+                                  } else if (str.includes('width-full')) {
+                                    results.push({ label: 'Width', value: '100%' });
+                                  }
+                                }
+                                
+                                if (str.includes('height')) {
+                                  if (str.includes('height-auto') || str.includes('height_auto')) {
+                                    results.push({ label: 'Height', value: 'Auto' });
+                                  } else if (str.includes('height-keep') || str.includes('height_keep')) {
+                                    results.push({ label: 'Height', value: 'Keep' });
+                                  } else if (str.match(/height[_-](\d+)px/)) {
+                                    const match = str.match(/height[_-](\d+)px/);
+                                    results.push({ label: 'Height', value: `${match[1]}px` });
+                                  } else if (str.includes('aspect_ratio') || str.includes('aspect-ratio')) {
+                                    results.push({ label: 'Height', value: 'Aspect Ratio' });
+                                  }
+                                }
+                                
+                                const marginMatch = str.match(/margin[_-](\w+)[_-](\d+)px/);
+                                if (marginMatch) {
+                                  results.push({ label: `Margin ${marginMatch[1]}`, value: `${marginMatch[2]}px` });
+                                }
+                                
+                                return results;
+                              };
+                              
+                              const parsed = parseOutput(output);
+                              
+                              if (parsed.length > 0) {
+                                return parsed.map((item, idx) => (
+                                  <div key={idx} style={{ marginBottom: idx < parsed.length - 1 ? '4px' : 0 }}>
+                                    <span style={{ opacity: 0.8 }}>{item.label}:</span>{' '}
+                                    <span style={{ fontWeight: '500' }}>{item.value}</span>
+                                  </div>
+                                ));
+                              }
+                              
+                              return <span>{output.replace(/_/g, ' ')}</span>;
+                            })()}
                           </div>
                         </div>
                       </div>
