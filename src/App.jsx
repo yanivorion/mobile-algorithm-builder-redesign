@@ -656,13 +656,28 @@ function App() {
   } = useHeuristics();
   const [exportFormat, setExportFormat] = useState('csv');
   const [currentView, setCurrentView] = useState('library');
-  const [libraryViewMode, setLibraryViewMode] = useState('glass'); // 2 glass presets: glass, apple-spotlight
+  const [libraryViewMode, setLibraryViewMode] = useState('apple-spotlight'); // 2 glass presets: glass, apple-spotlight
   const [libraryLayout, setLibraryLayout] = useState('list'); // 'list' or 'grid'
   const [historyView, setHistoryView] = useState(null); // { heuristicId, fieldName }
   const [expandedHeuristic, setExpandedHeuristic] = useState(null); // ID of expanded heuristic
   const [hoveredHeuristic, setHoveredHeuristic] = useState(null); // ID of hovered heuristic
   const [editingField, setEditingField] = useState(null); // { heuristicId, fieldName, value }
   const [editModeHeuristic, setEditModeHeuristic] = useState(null); // ID of heuristic in edit mode
+
+  // Chevron Icon Component
+  const ChevronIcon = ({ style }) => (
+    <svg 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="2"
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+      style={style}
+    >
+      <polyline points="6,9 12,15 18,9" />
+    </svg>
+  );
 
   const uniqueId = useMemo(() => `mab-${Math.random().toString(36).substr(2, 9)}`, []);
 
@@ -1314,77 +1329,6 @@ function App() {
   // ACCORDION COMPONENT SYSTEM (From ComponentA_RuleAccordionShowcase)
   // ============================================================================
 
-  // Chevron Icon Component
-  const ChevronIcon = ({ style }) => (
-    <svg 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      style={style}
-    >
-      <polyline points="6 9 12 15 18 9" />
-    </svg>
-  );
-
-  // Get preset styles for accordion display modes
-  const getPresetStyles = (preset, isHovered, isExpanded) => {
-    const baseTransition = `all 300ms cubic-bezier(0.4, 0, 0.2, 1)`;
-    const borderRadius = 12;
-    const padding = 16;
-    
-    const textPrimary = colors.primaryText;
-    const textSecondary = colors.secondaryText;
-    const cardBackground = colors.cardBackground;
-    
-    // Two glass-style presets
-    const presets = {
-      // Glass: Glass morphism with blur and transparency
-      'glass': {
-        outer: {
-          row: {
-            background: 'rgba(255,255,255,0.25)',
-            backdropFilter: 'blur(20px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-            borderRadius: 16,
-            border: '1px solid rgba(255,255,255,0.3)',
-            boxShadow: isHovered 
-              ? '0 12px 40px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.5)'
-              : '0 8px 32px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.4)',
-            cursor: 'pointer',
-            transition: baseTransition,
-            marginBottom: '12px',
-            overflow: 'hidden',
-            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif',
-          },
-        },
-      },
-      // Apple Spotlight: Clean Apple-style with subtle background
-      'apple-spotlight': {
-        outer: {
-          row: {
-            background: 'rgba(255,255,255,0.72)',
-            backdropFilter: 'blur(40px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-            borderRadius: 12,
-            border: '0.5px solid rgba(0,0,0,0.1)',
-            boxShadow: '0 25px 50px rgba(0,0,0,0.15), 0 0 0 0.5px rgba(0,0,0,0.05)',
-            cursor: 'pointer',
-            transition: baseTransition,
-            marginBottom: '12px',
-            overflow: 'hidden',
-            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif',
-          },
-        },
-      },
-    };
-    
-    return presets[preset] || presets['glass'];
-  };
-
-  // Render Library View
   const renderLibraryView = () => {
     return (
       <main style={{ 
@@ -1593,70 +1537,225 @@ function App() {
               {heuristics.map((h) => {
                 const isExpanded = expandedHeuristic === h.id;
                 const isHovered = hoveredHeuristic === h.id;
-                
-                // Extract subject from subcategory
-                const subject = h.step3b_subcategory 
-                  ? h.step3b_subcategory.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-                  : '—';
-                
-                // Get preset styles
                 const presetStyles = getPresetStyles(libraryViewMode, isHovered, isExpanded);
+                const [contentHeight, setContentHeight] = React.useState(0);
+                const contentRef = React.useRef(null);
+                
+                // Measure content height on expand
+                React.useEffect(() => {
+                  if (contentRef.current && isExpanded) {
+                    setContentHeight(contentRef.current.scrollHeight);
+                  }
+                }, [isExpanded]);
                 
                 return (
-                  <div key={h.id} style={{ border: '1px solid #ccc', marginBottom: '4px' }}>
-                    {/* Collapsed Row */}
+                  <div 
+                    key={h.id}
+                    style={presetStyles.container}
+                    onMouseEnter={() => setHoveredHeuristic(h.id)}
+                    onMouseLeave={() => setHoveredHeuristic(null)}
+                  >
+                    {/* Header Row - Always Visible */}
                     <div 
                       onClick={() => setExpandedHeuristic(isExpanded ? null : h.id)}
-                      style={{
-                        padding: '12px',
-                        cursor: 'pointer',
-                        background: '#f5f5f5',
-                      }}
+                      style={presetStyles.header}
                     >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div>
-                          <div><strong>{h.step1_who_element}</strong></div>
-                          <div style={{ fontSize: '12px', color: '#666' }}>
-                            {h.step3a_category} • {h.step2_where_parent}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{
+                            fontSize: libraryViewMode === 'glass' ? '16px' : '15px',
+                            fontWeight: libraryViewMode === 'glass' ? '600' : '500',
+                            color: '#1A1A1A',
+                            letterSpacing: '-0.01em',
+                            marginBottom: libraryViewMode === 'glass' ? '4px' : '2px',
+                          }}>
+                            {h.step1_who_element}
+                          </div>
+                          <div style={{ fontSize: '13px', color: '#6B7280' }}>
+                            {libraryViewMode === 'glass' 
+                              ? h.step3a_category
+                              : `${h.step3a_category} · ${h.step2_where_parent}`
+                            }
                           </div>
                         </div>
                         
-                        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                          <span style={{ fontSize: '12px' }}>{h.id}</span>
-                          <select
-                            value={h.status || 'Active'}
-                            onChange={(e) => {
-                              e.stopPropagation();
-                              updateStatus(h.id, e.target.value);
-                            }}
-                            style={{ padding: '4px 8px' }}
-                          >
-                            {STATUS_OPTIONS.map(status => (
-                              <option key={status.value} value={status.value}>{status.value}</option>
-                            ))}
-                          </select>
-                          <span>{isExpanded ? '▲' : '▼'}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: libraryViewMode === 'glass' ? '16px' : '10px' }}>
+                          <span style={{
+                            fontSize: '12px',
+                            color: libraryViewMode === 'glass' ? '#1A1A1A' : '#6B7280',
+                            background: libraryViewMode === 'glass' 
+                              ? 'rgba(255,255,255,0.4)'
+                              : 'rgba(0,0,0,0.05)',
+                            backdropFilter: libraryViewMode === 'glass' ? 'blur(10px)' : 'none',
+                            padding: libraryViewMode === 'glass' ? '6px 12px' : '4px 10px',
+                            borderRadius: libraryViewMode === 'glass' ? '20px' : '6px',
+                            border: libraryViewMode === 'glass' ? '1px solid rgba(255,255,255,0.3)' : 'none',
+                          }}>
+                            {h.id}
+                          </span>
+                          <span style={{
+                            fontSize: '13px',
+                            color: getStatusColor(h.status || 'Active'),
+                            fontWeight: libraryViewMode === 'glass' ? '600' : '500',
+                          }}>
+                            {h.status || 'Active'}
+                          </span>
+                          <ChevronIcon style={{
+                            width: libraryViewMode === 'glass' ? 18 : 16,
+                            height: libraryViewMode === 'glass' ? 18 : 16,
+                            transition: 'transform 300ms ease-out',
+                            transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                            color: libraryViewMode === 'glass' ? '#6B7280' : '#8E8E93',
+                          }} />
                         </div>
                       </div>
                     </div>
-
-                    {/* Expanded Details */}
-                    {isExpanded && (
-                      <div style={{ padding: '16px', background: '#fff' }}>
-                        <div style={{ marginBottom: '12px' }}>
-                          <strong>Parent:</strong> {h.step2_where_parent}
-                        </div>
-                        <div style={{ marginBottom: '12px' }}>
-                          <strong>Condition:</strong> {h.step4_condition_type || 'Always Apply'}
-                        </div>
-                        <div style={{ marginBottom: '12px' }}>
-                          <strong>Action:</strong> {h.step5_action}
-                        </div>
-                        <div style={{ padding: '12px', background: '#e3f2fd' }}>
-                          <strong>Output:</strong> {h.step6_output}
-                        </div>
+                    
+                    {/* Expandable Content */}
+                    <div style={{
+                      maxHeight: isExpanded ? contentHeight || '2000px' : 0,
+                      overflow: 'hidden',
+                      transition: 'max-height 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+                    }}>
+                      <div ref={contentRef} style={presetStyles.expandedContent}>
+                        {libraryViewMode === 'apple-spotlight' ? (
+                          // APPLE SPOTLIGHT LAYOUT
+                          <>
+                            <div style={{
+                              background: 'rgba(0,0,0,0.03)',
+                              borderRadius: '8px',
+                              padding: '16px',
+                            }}>
+                              <div style={{
+                                display: 'flex',
+                                alignItems: 'baseline',
+                                justifyContent: 'space-between',
+                                gap: '16px',
+                                padding: '8px 0',
+                                borderBottom: '0.5px solid rgba(0,0,0,0.06)',
+                              }}>
+                                <span style={{ fontSize: '14px', color: '#6B7280' }}>Parent Container</span>
+                                <span style={{ fontSize: '14px', color: '#1A1A1A', textAlign: 'right' }}>{h.step2_where_parent}</span>
+                              </div>
+                              <div style={{
+                                display: 'flex',
+                                alignItems: 'baseline',
+                                justifyContent: 'space-between',
+                                gap: '16px',
+                                padding: '8px 0',
+                                borderBottom: '0.5px solid rgba(0,0,0,0.06)',
+                              }}>
+                                <span style={{ fontSize: '14px', color: '#6B7280' }}>Condition</span>
+                                <span style={{ fontSize: '14px', color: '#1A1A1A', textAlign: 'right' }}>
+                                  {h.step4_condition_type === 'none' || !h.step4_condition_type ? 'Always Apply' : h.step4_condition_type}
+                                </span>
+                              </div>
+                              <div style={{
+                                display: 'flex',
+                                alignItems: 'baseline',
+                                justifyContent: 'space-between',
+                                gap: '16px',
+                                padding: '8px 0',
+                              }}>
+                                <span style={{ fontSize: '14px', color: '#6B7280' }}>Action</span>
+                                <span style={{ fontSize: '14px', color: '#1A1A1A', textAlign: 'right' }}>{h.step5_action}</span>
+                              </div>
+                            </div>
+                            
+                            <div style={{
+                              marginTop: '16px',
+                              paddingTop: '16px',
+                              borderTop: '0.5px solid rgba(0,0,0,0.1)',
+                              display: 'flex',
+                              gap: '32px',
+                            }}>
+                              <div>
+                                <div style={{ fontSize: '12px', color: '#8E8E93' }}>Output</div>
+                                <div style={{ fontSize: '16px', color: '#007AFF', fontWeight: '600' }}>{h.step6_output}</div>
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          // GLASS LAYOUT
+                          <>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                              <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                padding: '16px',
+                                background: 'rgba(255,255,255,0.2)',
+                                backdropFilter: 'blur(10px)',
+                                borderRadius: '10px',
+                                border: '1px solid rgba(255,255,255,0.2)',
+                              }}>
+                                <span style={{ fontSize: '14px', color: '#6B7280' }}>Parent Container</span>
+                                <span style={{ fontSize: '14px', color: '#1A1A1A', fontWeight: '500' }}>{h.step2_where_parent}</span>
+                              </div>
+                              <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                padding: '16px',
+                                background: 'rgba(255,255,255,0.2)',
+                                backdropFilter: 'blur(10px)',
+                                borderRadius: '10px',
+                                border: '1px solid rgba(255,255,255,0.2)',
+                              }}>
+                                <span style={{ fontSize: '14px', color: '#6B7280' }}>Condition</span>
+                                <span style={{ fontSize: '14px', color: '#1A1A1A', fontWeight: '500' }}>
+                                  {h.step4_condition_type === 'none' || !h.step4_condition_type ? 'Always Apply' : h.step4_condition_type}
+                                </span>
+                              </div>
+                              <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                padding: '16px',
+                                background: 'rgba(255,255,255,0.2)',
+                                backdropFilter: 'blur(10px)',
+                                borderRadius: '10px',
+                                border: '1px solid rgba(255,255,255,0.2)',
+                              }}>
+                                <span style={{ fontSize: '14px', color: '#6B7280' }}>Action</span>
+                                <span style={{ fontSize: '14px', color: '#1A1A1A', fontWeight: '500' }}>{h.step5_action}</span>
+                              </div>
+                            </div>
+                            
+                            <div style={{
+                              marginTop: '16px',
+                              padding: '20px',
+                              background: '#007AFF20',
+                              backdropFilter: 'blur(10px)',
+                              borderRadius: '12px',
+                              border: '1px solid #007AFF40',
+                              display: 'flex',
+                              justifyContent: 'space-around',
+                            }}>
+                              <div style={{ textAlign: 'center' }}>
+                                <div style={{
+                                  fontSize: '12px',
+                                  color: '#6B7280',
+                                  textTransform: 'uppercase',
+                                  letterSpacing: '0.05em',
+                                  marginBottom: '4px',
+                                }}>
+                                  Output
+                                </div>
+                                <div style={{
+                                  fontSize: '22px',
+                                  color: '#007AFF',
+                                  fontWeight: '700',
+                                  letterSpacing: '-0.02em',
+                                }}>
+                                  {h.step6_output}
+                                </div>
+                              </div>
+                            </div>
+                          </>
+                        )}
                       </div>
-                    )}
+                    </div>
                   </div>
                 );
               })}
