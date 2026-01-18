@@ -261,18 +261,8 @@ const STEPS = [
 ];
 
 const VIEW_MODES = [
-  { id: 'modern-cards', name: 'Modern Cards' },
-  { id: 'minimal-lines', name: 'Minimal Lines' },
-  { id: 'data-table', name: 'Data Table' },
-  { id: 'kanban-style', name: 'Kanban Style' },
-  { id: 'timeline-flow', name: 'Timeline Flow' },
-  { id: 'split-panel', name: 'Split Panel' },
-  { id: 'floating-panels', name: 'Floating Panels' },
-  { id: 'compact-dense', name: 'Compact Dense' },
-  { id: 'material-sheets', name: 'Material Sheets' },
-  { id: 'notion-blocks', name: 'Notion Blocks' },
-  { id: 'terminal-cli', name: 'Terminal CLI' },
-  { id: 'dashboard-tiles', name: 'Dashboard Tiles' },
+  { id: 'clean', name: 'Clean' },
+  { id: 'minimal', name: 'Minimal' },
 ];
 
 
@@ -666,7 +656,7 @@ function App() {
   } = useHeuristics();
   const [exportFormat, setExportFormat] = useState('csv');
   const [currentView, setCurrentView] = useState('library');
-  const [libraryViewMode, setLibraryViewMode] = useState('modern-cards'); // Preset modes from ComponentA
+  const [libraryViewMode, setLibraryViewMode] = useState('clean'); // 2 simple presets: clean, minimal
   const [libraryLayout, setLibraryLayout] = useState('list'); // 'list' or 'grid'
   const [historyView, setHistoryView] = useState(null); // { heuristicId, fieldName }
   const [expandedHeuristic, setExpandedHeuristic] = useState(null); // ID of expanded heuristic
@@ -1345,26 +1335,17 @@ function App() {
     const borderRadius = 8;
     const padding = 16;
     const gap = 12;
-    const fontSize = 14;
     
-    // Map internal heuristic data to ComponentA structure
     const textPrimary = colors.primaryText;
     const textSecondary = colors.secondaryText;
     const borderColor = colors.border;
     const cardBackground = colors.cardBackground;
     const backgroundColor = colors.background;
-    const primaryColor = '#3B7DED';
     
-    const getStatusColor = (status) => {
-      if (status === 'Active') return '#22C55E';
-      if (status === 'Pending') return '#F59E0B';
-      if (status === 'Canceled') return '#6B7280';
-      return textSecondary;
-    };
-    
-    // Return a selection of the most useful presets
+    // Two simple, focused presets for collapsed/expanded states
     const presets = {
-      'modern-cards': {
+      // Clean: Subtle borders with soft shadows
+      'clean': {
         outer: {
           row: {
             background: cardBackground,
@@ -1382,7 +1363,8 @@ function App() {
           },
         },
       },
-      'minimal-lines': {
+      // Minimal: Line separators only
+      'minimal': {
         outer: {
           row: {
             padding: `${padding}px 0`,
@@ -1396,163 +1378,9 @@ function App() {
           },
         },
       },
-      'data-table': {
-        outer: {
-          row: {
-            display: 'grid',
-            gridTemplateColumns: '180px 140px 140px 1fr 100px 40px',
-            background: isHovered ? backgroundColor : cardBackground,
-            cursor: 'pointer',
-            transition: baseTransition,
-            borderBottom: `1px solid ${borderColor}`,
-          },
-          cell: {
-            padding: `${padding}px`,
-            borderRight: `1px solid ${borderColor}`,
-            display: 'flex',
-            alignItems: 'center',
-          },
-        },
-      },
-      'kanban-style': {
-        outer: {
-          row: {
-            background: cardBackground,
-            borderRadius: borderRadius,
-            padding: padding,
-            boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-            cursor: 'pointer',
-            transition: baseTransition,
-            display: 'flex',
-            alignItems: 'center',
-            gap: gap,
-            border: isHovered ? `1px solid ${primaryColor}40` : `1px solid transparent`,
-            marginBottom: '8px',
-          },
-        },
-      },
-      'timeline-flow': {
-        outer: {
-          row: {
-            background: `linear-gradient(135deg, ${primaryColor}05 0%, ${primaryColor}10 100%)`,
-            borderRadius: borderRadius,
-            padding: padding * 1.5,
-            cursor: 'pointer',
-            transition: baseTransition,
-            border: `1px solid ${primaryColor}20`,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: gap,
-            marginBottom: '12px',
-          },
-        },
-      },
-      'floating-panels': {
-        outer: {
-          row: {
-            background: cardBackground,
-            borderRadius: borderRadius + 4,
-            padding: padding * 1.25,
-            boxShadow: isHovered 
-              ? '0 20px 40px rgba(0,0,0,0.12), 0 8px 16px rgba(0,0,0,0.08)' 
-              : '0 10px 30px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05)',
-            cursor: 'pointer',
-            transition: baseTransition,
-            display: 'flex',
-            alignItems: 'center',
-            gap: gap * 1.5,
-            transform: isHovered ? 'translateY(-2px)' : 'translateY(0)',
-            marginBottom: '16px',
-          },
-        },
-      },
-      'compact-dense': {
-        outer: {
-          row: {
-            display: 'flex',
-            alignItems: 'center',
-            padding: `${padding * 0.75}px ${padding}px`,
-            gap: gap,
-            cursor: 'pointer',
-            transition: baseTransition,
-            background: isHovered ? backgroundColor : 'transparent',
-            borderBottom: `1px solid ${borderColor}`,
-          },
-        },
-      },
-      'material-sheets': {
-        outer: {
-          row: {
-            background: cardBackground,
-            padding: padding,
-            cursor: 'pointer',
-            transition: baseTransition,
-            boxShadow: isHovered 
-              ? '0 2px 4px rgba(0,0,0,0.1), 0 4px 8px rgba(0,0,0,0.05)'
-              : '0 1px 2px rgba(0,0,0,0.05)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: gap * 1.5,
-            marginBottom: 2,
-          },
-        },
-      },
-      'notion-blocks': {
-        outer: {
-          row: {
-            display: 'flex',
-            alignItems: 'center',
-            padding: `${padding * 0.75}px 0`,
-            gap: gap,
-            cursor: 'pointer',
-            transition: baseTransition,
-            borderRadius: borderRadius - 4,
-            margin: `0 -${padding * 0.5}px`,
-            paddingLeft: padding * 0.5,
-            paddingRight: padding * 0.5,
-          },
-        },
-      },
-      'terminal-cli': {
-        outer: {
-          row: {
-            display: 'flex',
-            alignItems: 'center',
-            padding: `${padding}px`,
-            gap: gap,
-            cursor: 'pointer',
-            transition: baseTransition,
-            background: isHovered ? '#2A2A2A' : 'transparent',
-          },
-        },
-      },
-      'dashboard-tiles': {
-        outer: {
-          row: {
-            background: `linear-gradient(135deg, ${primaryColor} 0%, ${primaryColor}DD 100%)`,
-            borderRadius: borderRadius,
-            padding: padding * 1.5,
-            cursor: 'pointer',
-            transition: baseTransition,
-            color: cardBackground,
-            boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
-            marginBottom: '12px',
-          },
-        },
-      },
-      'split-panel': {
-        outer: {
-          row: {
-            display: 'flex',
-            cursor: 'pointer',
-            transition: baseTransition,
-            marginBottom: '2px',
-          },
-        },
-      },
     };
     
-    return presets[preset] || presets['modern-cards'];
+    return presets[preset] || presets['clean'];
   };
 
   // Render Library View
@@ -1711,8 +1539,8 @@ function App() {
           </div>
         )}
 
-        {/* Table Header - Only show for certain presets in list mode */}
-        {heuristics.length > 0 && libraryLayout === 'list' && ['modern-cards', 'data-table'].includes(libraryViewMode) && (
+        {/* Table Header - Only show for clean preset in list mode */}
+        {heuristics.length > 0 && libraryLayout === 'list' && libraryViewMode === 'clean' && (
           <div style={{
             padding: '16px 48px',
             borderBottom: `1px solid ${colors.border}`,
@@ -1798,7 +1626,7 @@ function App() {
                 
                 return (
                   <div key={h.id} style={{
-                    ...(libraryLayout === 'list' && !['modern-cards', 'floating-panels', 'dashboard-tiles'].includes(libraryViewMode) ? {
+                    ...(libraryLayout === 'list' && libraryViewMode === 'minimal' ? {
                       borderBottom: `1px solid ${colors.border}`,
                     } : {}),
                     background: isExpanded && libraryLayout === 'list' ? '#FAFAFA' : 'transparent',
