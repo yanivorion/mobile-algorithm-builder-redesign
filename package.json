@@ -3,7 +3,7 @@
   "version": "2.0.0",
   "description": "A wizard interface for creating mobile algorithm heuristics - Wix Editor 3.0",
   "type": "module",
-  "homepage": "https://yanivo.github.io/mobile-algorithm-builder-redesign",
+  "homepage": "https://yanivorion.github.io/mobile-algorithm-builder-redesign",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
