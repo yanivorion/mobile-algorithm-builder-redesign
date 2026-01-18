@@ -1603,387 +1603,57 @@ function App() {
                 const presetStyles = getPresetStyles(libraryViewMode, isHovered, isExpanded);
                 
                 return (
-                  <div key={h.id} style={{
-                    marginBottom: libraryLayout === 'grid' ? '0' : '12px',
-                  }}>
-                    {/* Collapsed Row - Glass Style */}
+                  <div key={h.id} style={{ border: '1px solid #ccc', marginBottom: '4px' }}>
+                    {/* Collapsed Row */}
                     <div 
+                      onClick={() => setExpandedHeuristic(isExpanded ? null : h.id)}
                       style={{
-                        ...presetStyles.outer.row,
-                      }}
-                      onMouseEnter={() => setHoveredHeuristic(h.id)}
-                      onMouseLeave={() => setHoveredHeuristic(null)}
-                      onClick={(e) => {
-                        // Don't toggle if clicking on interactive elements
-                        if (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') {
-                          return;
-                        }
-                        setExpandedHeuristic(isExpanded ? null : h.id);
+                        padding: '12px',
+                        cursor: 'pointer',
+                        background: '#f5f5f5',
                       }}
                     >
-                      {/* Inner wrapper for glass preset */}
-                      <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: libraryViewMode === 'glass' ? '20px 24px' : '14px 16px',
-                        background: isHovered && libraryViewMode === 'glass' ? 'rgba(255,255,255,0.15)' : 
-                                   isHovered && libraryViewMode === 'apple-spotlight' ? 'rgba(0,122,255,0.1)' : 'transparent',
-                        transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
-                        borderRadius: libraryViewMode === 'apple-spotlight' ? '8px' : '0',
-                        margin: libraryViewMode === 'apple-spotlight' ? '4px' : '0',
-                      }}>
-                        {/* Left side: Element name + category */}
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ 
-                            fontSize: libraryViewMode === 'glass' ? '16px' : '15px',
-                            fontWeight: libraryViewMode === 'glass' ? '600' : '500',
-                            color: colors.primaryText,
-                            letterSpacing: '-0.01em',
-                            marginBottom: '4px',
-                          }}>
-                            {(h.step1_who_element || 'Element').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                          </div>
-                          <div style={{ 
-                            fontSize: '13px',
-                            color: colors.secondaryText,
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                          }}>
-                            {(h.step3a_category || 'Layout').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                            {h.step2_where_parent && h.step2_where_parent !== 'any' && (
-                              <> · {(h.step2_where_parent || '').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</>
-                            )}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                          <div><strong>{h.step1_who_element}</strong></div>
+                          <div style={{ fontSize: '12px', color: '#666' }}>
+                            {h.step3a_category} • {h.step2_where_parent}
                           </div>
                         </div>
-
-                        {/* Right side: ID, Status, Chevron */}
-                        <div style={{ 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          gap: libraryViewMode === 'glass' ? '16px' : '10px',
-                        }}>
-                          {/* ID Badge */}
-                          <div style={{ 
-                            fontSize: '12px', 
-                            fontFamily: 'monospace',
-                            color: colors.primaryText,
-                            background: libraryViewMode === 'glass' 
-                              ? 'rgba(255,255,255,0.4)'
-                              : 'rgba(0,0,0,0.05)',
-                            backdropFilter: libraryViewMode === 'glass' ? 'blur(10px)' : 'none',
-                            padding: '6px 12px',
-                            borderRadius: libraryViewMode === 'glass' ? '20px' : '6px',
-                            border: libraryViewMode === 'glass' ? '1px solid rgba(255,255,255,0.3)' : 'none',
-                          }}>
-                            {h.id}
-                          </div>
-
-                          {/* Status */}
-                          <div onClick={(e) => e.stopPropagation()}>
-                            <select
-                              value={h.status || 'Active'}
-                              onChange={(e) => updateStatus(h.id, e.target.value)}
-                              style={{
-                                padding: '6px 12px',
-                                fontSize: '13px',
-                                fontWeight: libraryViewMode === 'glass' ? '600' : '500',
-                                border: 'none',
-                                borderRadius: '6px',
-                                background: 'transparent',
-                                color: (() => {
-                                  const status = h.status || 'Active';
-                                  if (status === 'Active') return '#22C55E';
-                                  if (status === 'Pending') return '#F59E0B';
-                                  if (status === 'Canceled') return '#6B7280';
-                                  return '#22C55E';
-                                })(),
-                                cursor: 'pointer',
-                                outline: 'none',
-                                appearance: 'none',
-                                WebkitAppearance: 'none',
-                                MozAppearance: 'none',
-                              }}
-                            >
-                              {STATUS_OPTIONS.map(status => (
-                                <option key={status.value} value={status.value}>{status.value}</option>
-                              ))}
-                            </select>
-                          </div>
-
-                          {/* Chevron Icon */}
-                          <div style={{ 
-                            transition: 'transform 200ms ease-out',
-                            transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                            display: 'flex',
-                            alignItems: 'center',
-                          }}>
-                            <ChevronIcon style={{ 
-                              width: libraryViewMode === 'glass' ? 18 : 16, 
-                              height: libraryViewMode === 'glass' ? 18 : 16, 
-                              color: colors.secondaryText 
-                            }} />
-                          </div>
+                        
+                        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                          <span style={{ fontSize: '12px' }}>{h.id}</span>
+                          <select
+                            value={h.status || 'Active'}
+                            onChange={(e) => {
+                              e.stopPropagation();
+                              updateStatus(h.id, e.target.value);
+                            }}
+                            style={{ padding: '4px 8px' }}
+                          >
+                            {STATUS_OPTIONS.map(status => (
+                              <option key={status.value} value={status.value}>{status.value}</option>
+                            ))}
+                          </select>
+                          <span>{isExpanded ? '▲' : '▼'}</span>
                         </div>
                       </div>
                     </div>
 
                     {/* Expanded Details */}
                     {isExpanded && (
-                      <div style={{
-                        padding: '32px 48px 40px',
-                        background: colors.background,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '12px',
-                      }}>
-                        {/* Step 2: Parent Container */}
-                        <div
-                          style={{
-                            backgroundColor: colors.cardBackground,
-                            borderRadius: '12px',
-                            padding: '20px',
-                            boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-                            border: `1px solid ${colors.border}`,
-                          }}
-                        >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                            <div
-                              style={{
-                                width: '32px',
-                                height: '32px',
-                                borderRadius: '50%',
-                                backgroundColor: colors.background,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontSize: '13px',
-                                fontWeight: 500,
-                                color: colors.secondaryText,
-                              }}
-                            >
-                              2
-                            </div>
-                            <div style={{ fontSize: '11px', fontWeight: 500, color: colors.secondaryText, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                              PARENT CONTAINER
-                            </div>
-                          </div>
-                          <div style={{ fontSize: '16px', fontWeight: 400, color: colors.primaryText, paddingLeft: '44px' }}>
-                            {(h.step2_where_parent || 'Any').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                          </div>
-                          </div>
-                        
-                        {/* Step 4: Condition */}
-                        <div
-                          style={{
-                            backgroundColor: colors.cardBackground,
-                            borderRadius: '12px',
-                            padding: '20px',
-                            boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-                            border: `1px solid ${colors.border}`,
-                          }}
-                        >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                            <div
-                              style={{
-                                width: '32px',
-                                height: '32px',
-                                borderRadius: '50%',
-                                backgroundColor: colors.background,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontSize: '13px',
-                                fontWeight: 500,
-                                color: colors.secondaryText,
-                              }}
-                            >
-                              4
-                            </div>
-                            <div style={{ fontSize: '11px', fontWeight: 500, color: colors.secondaryText, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                              CONDITION
-                            </div>
-                          </div>
-                          <div style={{ fontSize: '16px', fontWeight: 400, color: colors.primaryText, paddingLeft: '44px' }}>
-                            {h.step4_condition_type === 'none' || !h.step4_condition_type ? (
-                              <span>Always Apply (No Condition)</span>
-                            ) : (
-                              <>
-                                <span>
-                                  {(() => {
-                                    const type = h.step4_condition_type || '';
-                                    if (type === 'is_blank') return 'is Blank';
-                                    if (type === 'is_blank_desktop_height') return 'is Blank & Desktop Height';
-                                    if (type === 'desktop_width') return 'Desktop Width';
-                                    if (type === 'desktop_height') return 'Desktop Height';
-                                    if (type === 'desktop_font_size') return 'Desktop Font Size';
-                                    return type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                                  })()}
-                                </span>
-                              </>
-                            )}
-                          </div>
+                      <div style={{ padding: '16px', background: '#fff' }}>
+                        <div style={{ marginBottom: '12px' }}>
+                          <strong>Parent:</strong> {h.step2_where_parent}
                         </div>
-                        
-                        {/* Step 5: Action */}
-                        <div
-                          style={{
-                            backgroundColor: colors.cardBackground,
-                            borderRadius: '12px',
-                            padding: '20px',
-                            boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-                            border: `1px solid ${colors.border}`,
-                          }}
-                        >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                            <div
-                              style={{
-                                width: '32px',
-                                height: '32px',
-                                borderRadius: '50%',
-                                backgroundColor: colors.background,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontSize: '13px',
-                                fontWeight: 500,
-                                color: colors.secondaryText,
-                              }}
-                            >
-                              5
-                            </div>
-                            <div style={{ fontSize: '11px', fontWeight: 500, color: colors.secondaryText, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                              ACTION
-                            </div>
-                          </div>
-                          <div style={{ fontSize: '16px', fontWeight: 400, color: colors.primaryText, paddingLeft: '44px' }}>
-                            {(() => {
-                              const action = h.step5_action || '—';
-                              const output = h.step6_output || '';
-                              if (output.includes('scaling-reset') || output.includes('scaling_reset')) return 'Reset Scaling';
-                              if (action.includes('item_size') && output.includes('scaling')) return 'Reset Scaling';
-                              if (action.includes('resize_aspect')) return 'Resize in Aspect Ratio';
-                              if (action.includes('container_item_resize')) return 'Resize';
-                              if (action.includes('resize')) return 'Resize';
-                              if (action.includes('item_size')) return 'Resize';
-                              if (action.includes('margin')) return 'Set Margin';
-                              if (action.includes('padding')) return 'Set Padding';
-                              if (action.includes('font_size')) return 'Resize Font';
-                              if (action.includes('alignment')) return 'Align';
-                              if (action.includes('hide')) return 'Hide';
-                              if (action.includes('show')) return 'Show';
-                              if (action.includes('keep')) return 'Keep';
-                              if (action.includes('offset')) return 'Set Offset';
-                              if (action.includes('rotation') || action.includes('set_rotation')) return 'Set Rotation';
-                              if (action.includes('arrange')) return 'Arrange';
-                              if (action.includes('menu_spacing')) return 'Menu Spacing';
-                              return action.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                            })()}
-                          </div>
+                        <div style={{ marginBottom: '12px' }}>
+                          <strong>Condition:</strong> {h.step4_condition_type || 'Always Apply'}
                         </div>
-                        
-                        {/* Step 6: Output - Blue Box */}
-                        <div
-                          style={{
-                            background: 'linear-gradient(135deg, #5B8DEF 0%, #3B7DED 100%)',
-                            borderRadius: '12px',
-                            padding: '20px',
-                            boxShadow: '0 2px 8px rgba(59, 125, 237, 0.15)',
-                          }}
-                        >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                            <div
-                              style={{
-                                width: '32px',
-                                height: '32px',
-                                borderRadius: '50%',
-                                backgroundColor: 'rgba(255,255,255,0.2)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontSize: '13px',
-                                fontWeight: 500,
-                                color: '#FFFFFF',
-                              }}
-                            >
-                              6
-                            </div>
-                            <div style={{ fontSize: '11px', fontWeight: 500, color: 'rgba(255,255,255,0.9)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                              OUTPUT
-                            </div>
-                          </div>
-                          <div style={{ fontSize: '16px', fontWeight: 400, color: '#FFFFFF', paddingLeft: '44px', lineHeight: 1.6 }}>
-                            {(() => {
-                              const output = h.step6_output || '—';
-                              
-                              if (output.includes('scaling-reset') || output.includes('scaling_reset')) {
-                                const has100pct = output.includes('100pct') || output.includes('100%');
-                                return (
-                                  <span style={{ fontFamily: 'monospace', fontSize: '14px' }}>
-                                    scaledValue × (desktopVW / mobileVW){has100pct ? ' [100% max]' : ''}
-                                  </span>
-                                );
-                              }
-                              
-                              const parseOutput = (str) => {
-                                const results = [];
-                                
-                                const fontMatch = str.match(/font[_-]size[_-](\d+)px/);
-                                if (fontMatch) {
-                                  results.push({ label: 'Font Size', value: `${fontMatch[1]}px` });
-                                } else if (str.includes('font') && str.includes('keep')) {
-                                  results.push({ label: 'Font Size', value: 'Keep' });
-                                }
-                                
-                                if (str.includes('width')) {
-                                  if (str.includes('100pct') || str.includes('100%')) {
-                                    results.push({ label: 'Width', value: '100%' });
-                                  } else if (str.match(/width[_-](\d+)px/)) {
-                                    const match = str.match(/width[_-](\d+)px/);
-                                    results.push({ label: 'Width', value: `${match[1]}px` });
-                                  } else if (str.includes('width-keep') || str.includes('width_keep')) {
-                                    results.push({ label: 'Width', value: 'Keep' });
-                                  } else if (str.includes('width-full')) {
-                                    results.push({ label: 'Width', value: '100%' });
-                                  }
-                                }
-                                
-                                if (str.includes('height')) {
-                                  if (str.includes('height-auto') || str.includes('height_auto')) {
-                                    results.push({ label: 'Height', value: 'Auto' });
-                                  } else if (str.includes('height-keep') || str.includes('height_keep')) {
-                                    results.push({ label: 'Height', value: 'Keep' });
-                                  } else if (str.match(/height[_-](\d+)px/)) {
-                                    const match = str.match(/height[_-](\d+)px/);
-                                    results.push({ label: 'Height', value: `${match[1]}px` });
-                                  } else if (str.includes('aspect_ratio') || str.includes('aspect-ratio')) {
-                                    results.push({ label: 'Height', value: 'Aspect Ratio' });
-                                  }
-                                }
-                                
-                                const marginMatch = str.match(/margin[_-](\w+)[_-](\d+)px/);
-                                if (marginMatch) {
-                                  results.push({ label: `Margin ${marginMatch[1]}`, value: `${marginMatch[2]}px` });
-                                }
-                                
-                                return results;
-                              };
-                              
-                              const parsed = parseOutput(output);
-                              
-                              if (parsed.length > 0) {
-                                return parsed.map((item, idx) => (
-                                  <div key={idx} style={{ marginBottom: idx < parsed.length - 1 ? '4px' : 0 }}>
-                                    <span style={{ opacity: 0.8 }}>{item.label}:</span>{' '}
-                                    <span style={{ fontWeight: '500' }}>{item.value}</span>
-                                  </div>
-                                ));
-                              }
-                              
-                              return <span>{output.replace(/_/g, ' ')}</span>;
-                            })()}
-                          </div>
+                        <div style={{ marginBottom: '12px' }}>
+                          <strong>Action:</strong> {h.step5_action}
+                        </div>
+                        <div style={{ padding: '12px', background: '#e3f2fd' }}>
+                          <strong>Output:</strong> {h.step6_output}
                         </div>
                       </div>
                     )}
