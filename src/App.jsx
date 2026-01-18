@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import './App.css';
 import * as wixCMS from './services/wixCMS';
 
@@ -265,12 +265,97 @@ const VIEW_MODES = [
   { id: 'apple-spotlight', name: 'Apple Spotlight' },
 ];
 
+// Helper function to get preset-specific styles
+const getPresetStyles = (preset, isHovered, isExpanded) => {
+  if (preset === 'glass') {
+    return {
+      container: {
+        background: 'rgba(255,255,255,0.25)',
+        backdropFilter: 'blur(20px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        borderRadius: '16px',
+        border: '1px solid rgba(255,255,255,0.3)',
+        boxShadow: isHovered 
+          ? '0 12px 40px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.5)'
+          : '0 8px 32px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.4)',
+        overflow: 'hidden',
+        transition: 'all 250ms ease-out',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif',
+        marginBottom: '12px',
+      },
+      header: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '20px 24px',
+        cursor: 'pointer',
+        transition: 'all 250ms ease-out',
+        background: isHovered ? 'rgba(255,255,255,0.15)' : 'transparent',
+      }
+    };
+  } else if (preset === 'apple-spotlight') {
+    return {
+      container: {
+        background: 'rgba(255,255,255,0.72)',
+        backdropFilter: 'blur(40px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+        borderRadius: '12px',
+        border: '0.5px solid rgba(0,0,0,0.1)',
+        boxShadow: '0 25px 50px rgba(0,0,0,0.15), 0 0 0 0.5px rgba(0,0,0,0.05)',
+        overflow: 'hidden',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif',
+        marginBottom: '12px',
+      },
+      header: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: '16px',
+        padding: '14px 16px',
+        cursor: 'pointer',
+        transition: 'all 250ms ease-out',
+        borderRadius: '8px',
+        margin: '4px',
+        background: isHovered ? 'rgba(0,122,255,0.1)' : 'transparent',
+      }
+    };
+  }
+  return { container: {}, header: {} };
+};
+
+// Chevron Icon Component
+const ChevronIcon = ({ style }) => (
+  <svg 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2"
+    strokeLinecap="round" 
+    strokeLinejoin="round"
+    style={style}
+  >
+    <polyline points="6,9 12,15 18,9" />
+  </svg>
+);
 
 const STATUS_OPTIONS = [
   { value: 'Active', color: '#3B7DED' },      // Blue
   { value: 'Pending', color: '#F59E0B' },     // Orange
   { value: 'Canceled', color: '#6B7280' },    // Dark Grey
 ];
+
+// Helper function to get status color
+const getStatusColor = (status) => {
+  return STATUS_OPTIONS.find(s => s.value === status)?.color || '#3B7DED';
+};
+
+// Helper function to format text: capitalize first letter and replace underscores
+const formatText = (text) => {
+  if (!text) return '';
+  // Replace underscores with spaces and capitalize first letter
+  const formatted = text.replace(/_/g, ' ');
+  return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+};
 
 const INITIAL_HEURISTIC = {
   id: null,
@@ -663,21 +748,6 @@ function App() {
   const [hoveredHeuristic, setHoveredHeuristic] = useState(null); // ID of hovered heuristic
   const [editingField, setEditingField] = useState(null); // { heuristicId, fieldName, value }
   const [editModeHeuristic, setEditModeHeuristic] = useState(null); // ID of heuristic in edit mode
-
-  // Chevron Icon Component
-  const ChevronIcon = ({ style }) => (
-    <svg 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="2"
-      strokeLinecap="round" 
-      strokeLinejoin="round"
-      style={style}
-    >
-      <polyline points="6,9 12,15 18,9" />
-    </svg>
-  );
 
   const uniqueId = useMemo(() => `mab-${Math.random().toString(36).substr(2, 9)}`, []);
 
@@ -1538,15 +1608,6 @@ function App() {
                 const isExpanded = expandedHeuristic === h.id;
                 const isHovered = hoveredHeuristic === h.id;
                 const presetStyles = getPresetStyles(libraryViewMode, isHovered, isExpanded);
-                const [contentHeight, setContentHeight] = React.useState(0);
-                const contentRef = React.useRef(null);
-                
-                // Measure content height on expand
-                React.useEffect(() => {
-                  if (contentRef.current && isExpanded) {
-                    setContentHeight(contentRef.current.scrollHeight);
-                  }
-                }, [isExpanded]);
                 
                 return (
                   <div 
@@ -1560,64 +1621,108 @@ function App() {
                       onClick={() => setExpandedHeuristic(isExpanded ? null : h.id)}
                       style={presetStyles.header}
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{
-                            fontSize: libraryViewMode === 'glass' ? '16px' : '15px',
-                            fontWeight: libraryViewMode === 'glass' ? '600' : '500',
-                            color: '#1A1A1A',
-                            letterSpacing: '-0.01em',
-                            marginBottom: libraryViewMode === 'glass' ? '4px' : '2px',
-                          }}>
-                            {h.step1_who_element}
+                      {libraryViewMode === 'glass' ? (
+                        // GLASS HEADER
+                        <>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <span style={{
+                              fontSize: '16px',
+                              fontWeight: '600',
+                              color: '#1A1A1A',
+                              letterSpacing: '-0.01em',
+                            }}>
+                              {formatText(h.step1_who_element)}
+                            </span>
+                            <span style={{ fontSize: '13px', color: '#6B7280' }}>
+                              {formatText(h.step3a_category)}
+                            </span>
                           </div>
-                          <div style={{ fontSize: '13px', color: '#6B7280' }}>
-                            {libraryViewMode === 'glass' 
-                              ? h.step3a_category
-                              : `${h.step3a_category} · ${h.step2_where_parent}`
-                            }
+                          
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                            <span style={{
+                              fontSize: '12px',
+                              color: '#1A1A1A',
+                              background: 'rgba(255,255,255,0.4)',
+                              backdropFilter: 'blur(10px)',
+                              padding: '6px 12px',
+                              borderRadius: '20px',
+                              border: '1px solid rgba(255,255,255,0.3)',
+                            }}>
+                              {h.id}
+                            </span>
+                            <span style={{
+                              fontSize: '13px',
+                              color: getStatusColor(h.status || 'Active'),
+                              fontWeight: '600',
+                            }}>
+                              {h.status || 'Active'}
+                            </span>
+                            <ChevronIcon style={{
+                              width: 18,
+                              height: 18,
+                              transition: 'transform 300ms ease-out',
+                              transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                              color: '#6B7280',
+                            }} />
                           </div>
-                        </div>
-                        
-                        <div style={{ display: 'flex', alignItems: 'center', gap: libraryViewMode === 'glass' ? '16px' : '10px' }}>
-                          <span style={{
-                            fontSize: '12px',
-                            color: libraryViewMode === 'glass' ? '#1A1A1A' : '#6B7280',
-                            background: libraryViewMode === 'glass' 
-                              ? 'rgba(255,255,255,0.4)'
-                              : 'rgba(0,0,0,0.05)',
-                            backdropFilter: libraryViewMode === 'glass' ? 'blur(10px)' : 'none',
-                            padding: libraryViewMode === 'glass' ? '6px 12px' : '4px 10px',
-                            borderRadius: libraryViewMode === 'glass' ? '20px' : '6px',
-                            border: libraryViewMode === 'glass' ? '1px solid rgba(255,255,255,0.3)' : 'none',
-                          }}>
-                            {h.id}
-                          </span>
-                          <span style={{
-                            fontSize: '13px',
-                            color: getStatusColor(h.status || 'Active'),
-                            fontWeight: libraryViewMode === 'glass' ? '600' : '500',
-                          }}>
-                            {h.status || 'Active'}
-                          </span>
-                          <ChevronIcon style={{
-                            width: libraryViewMode === 'glass' ? 18 : 16,
-                            height: libraryViewMode === 'glass' ? 18 : 16,
-                            transition: 'transform 300ms ease-out',
-                            transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                            color: libraryViewMode === 'glass' ? '#6B7280' : '#8E8E93',
-                          }} />
-                        </div>
-                      </div>
+                        </>
+                      ) : (
+                        // APPLE SPOTLIGHT HEADER
+                        <>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{
+                              fontSize: '15px',
+                              fontWeight: '500',
+                              color: '#1A1A1A',
+                              letterSpacing: '-0.01em',
+                            }}>
+                              {formatText(h.step1_who_element)}
+                            </div>
+                            <div style={{
+                              fontSize: '13px',
+                              color: '#6B7280',
+                              marginTop: '2px',
+                            }}>
+                              {formatText(h.step3a_category)} · {formatText(h.step2_where_parent)}
+                            </div>
+                          </div>
+                          
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <span style={{
+                              fontSize: '12px',
+                              color: '#6B7280',
+                              background: 'rgba(0,0,0,0.05)',
+                              padding: '4px 10px',
+                              borderRadius: '6px',
+                            }}>
+                              {h.id}
+                            </span>
+                            <span style={{
+                              fontSize: '13px',
+                              color: getStatusColor(h.status || 'Active'),
+                              fontWeight: '500',
+                            }}>
+                              {h.status || 'Active'}
+                            </span>
+                            <ChevronIcon style={{
+                              width: 16,
+                              height: 16,
+                              transition: 'transform 300ms ease-out',
+                              transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                              color: '#8E8E93',
+                            }} />
+                          </div>
+                        </>
+                      )}
                     </div>
                     
                     {/* Expandable Content */}
                     <div style={{
-                      maxHeight: isExpanded ? contentHeight || '2000px' : 0,
+                      maxHeight: isExpanded ? '2000px' : 0,
                       overflow: 'hidden',
                       transition: 'max-height 300ms cubic-bezier(0.4, 0, 0.2, 1)',
                     }}>
-                      <div ref={contentRef} style={presetStyles.expandedContent}>
+                      <div style={{ padding: libraryViewMode === 'glass' ? '0 24px 20px' : '0 16px 16px' }}>
                         {libraryViewMode === 'apple-spotlight' ? (
                           // APPLE SPOTLIGHT LAYOUT
                           <>
@@ -1635,7 +1740,7 @@ function App() {
                                 borderBottom: '0.5px solid rgba(0,0,0,0.06)',
                               }}>
                                 <span style={{ fontSize: '14px', color: '#6B7280' }}>Parent Container</span>
-                                <span style={{ fontSize: '14px', color: '#1A1A1A', textAlign: 'right' }}>{h.step2_where_parent}</span>
+                                <span style={{ fontSize: '14px', color: '#1A1A1A', textAlign: 'right' }}>{formatText(h.step2_where_parent)}</span>
                               </div>
                               <div style={{
                                 display: 'flex',
@@ -1647,7 +1752,7 @@ function App() {
                               }}>
                                 <span style={{ fontSize: '14px', color: '#6B7280' }}>Condition</span>
                                 <span style={{ fontSize: '14px', color: '#1A1A1A', textAlign: 'right' }}>
-                                  {h.step4_condition_type === 'none' || !h.step4_condition_type ? 'Always Apply' : h.step4_condition_type}
+                                  {h.step4_condition_type === 'none' || !h.step4_condition_type ? 'Always Apply' : formatText(h.step4_condition_type)}
                                 </span>
                               </div>
                               <div style={{
@@ -1658,7 +1763,7 @@ function App() {
                                 padding: '8px 0',
                               }}>
                                 <span style={{ fontSize: '14px', color: '#6B7280' }}>Action</span>
-                                <span style={{ fontSize: '14px', color: '#1A1A1A', textAlign: 'right' }}>{h.step5_action}</span>
+                                <span style={{ fontSize: '14px', color: '#1A1A1A', textAlign: 'right' }}>{formatText(h.step5_action)}</span>
                               </div>
                             </div>
                             
@@ -1670,33 +1775,37 @@ function App() {
                               gap: '32px',
                             }}>
                               <div>
-                                <div style={{ fontSize: '12px', color: '#8E8E93' }}>Output</div>
-                                <div style={{ fontSize: '16px', color: '#007AFF', fontWeight: '600' }}>{h.step6_output}</div>
+                                <div style={{ fontSize: '12px', color: '#8E8E93' }}>Width</div>
+                                <div style={{ fontSize: '16px', color: '#007AFF', fontWeight: '600' }}>100%</div>
+                              </div>
+                              <div>
+                                <div style={{ fontSize: '12px', color: '#8E8E93' }}>Height</div>
+                                <div style={{ fontSize: '16px', color: '#007AFF', fontWeight: '600' }}>auto</div>
                               </div>
                             </div>
                           </>
                         ) : (
                           // GLASS LAYOUT
                           <>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                               <div style={{
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'space-between',
-                                padding: '16px',
+                                padding: '12px 16px',
                                 background: 'rgba(255,255,255,0.2)',
                                 backdropFilter: 'blur(10px)',
                                 borderRadius: '10px',
                                 border: '1px solid rgba(255,255,255,0.2)',
                               }}>
                                 <span style={{ fontSize: '14px', color: '#6B7280' }}>Parent Container</span>
-                                <span style={{ fontSize: '14px', color: '#1A1A1A', fontWeight: '500' }}>{h.step2_where_parent}</span>
+                                <span style={{ fontSize: '14px', color: '#1A1A1A', fontWeight: '500' }}>{formatText(h.step2_where_parent)}</span>
                               </div>
                               <div style={{
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'space-between',
-                                padding: '16px',
+                                padding: '12px 16px',
                                 background: 'rgba(255,255,255,0.2)',
                                 backdropFilter: 'blur(10px)',
                                 borderRadius: '10px',
@@ -1704,27 +1813,27 @@ function App() {
                               }}>
                                 <span style={{ fontSize: '14px', color: '#6B7280' }}>Condition</span>
                                 <span style={{ fontSize: '14px', color: '#1A1A1A', fontWeight: '500' }}>
-                                  {h.step4_condition_type === 'none' || !h.step4_condition_type ? 'Always Apply' : h.step4_condition_type}
+                                  {h.step4_condition_type === 'none' || !h.step4_condition_type ? 'Always Apply' : formatText(h.step4_condition_type)}
                                 </span>
                               </div>
                               <div style={{
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'space-between',
-                                padding: '16px',
+                                padding: '12px 16px',
                                 background: 'rgba(255,255,255,0.2)',
                                 backdropFilter: 'blur(10px)',
                                 borderRadius: '10px',
                                 border: '1px solid rgba(255,255,255,0.2)',
                               }}>
                                 <span style={{ fontSize: '14px', color: '#6B7280' }}>Action</span>
-                                <span style={{ fontSize: '14px', color: '#1A1A1A', fontWeight: '500' }}>{h.step5_action}</span>
+                                <span style={{ fontSize: '14px', color: '#1A1A1A', fontWeight: '500' }}>{formatText(h.step5_action)}</span>
                               </div>
                             </div>
                             
                             <div style={{
-                              marginTop: '16px',
-                              padding: '20px',
+                              marginTop: '12px',
+                              padding: '16px',
                               background: '#007AFF20',
                               backdropFilter: 'blur(10px)',
                               borderRadius: '12px',
@@ -1740,7 +1849,7 @@ function App() {
                                   letterSpacing: '0.05em',
                                   marginBottom: '4px',
                                 }}>
-                                  Output
+                                  Width
                                 </div>
                                 <div style={{
                                   fontSize: '22px',
@@ -1748,7 +1857,26 @@ function App() {
                                   fontWeight: '700',
                                   letterSpacing: '-0.02em',
                                 }}>
-                                  {h.step6_output}
+                                  100%
+                                </div>
+                              </div>
+                              <div style={{ textAlign: 'center' }}>
+                                <div style={{
+                                  fontSize: '12px',
+                                  color: '#6B7280',
+                                  textTransform: 'uppercase',
+                                  letterSpacing: '0.05em',
+                                  marginBottom: '4px',
+                                }}>
+                                  Height
+                                </div>
+                                <div style={{
+                                  fontSize: '22px',
+                                  color: '#007AFF',
+                                  fontWeight: '700',
+                                  letterSpacing: '-0.02em',
+                                }}>
+                                  auto
                                 </div>
                               </div>
                             </div>
