@@ -1626,17 +1626,18 @@ function App() {
                 
                 return (
                   <div key={h.id} style={{
-                    ...(libraryLayout === 'list' && libraryViewMode === 'minimal' ? {
-                      borderBottom: `1px solid ${colors.border}`,
-                    } : {}),
-                    background: isExpanded && libraryLayout === 'list' ? '#FAFAFA' : 'transparent',
-                    transition: 'background 200ms ease-out',
+                    marginBottom: libraryLayout === 'grid' ? '0' : '12px',
                   }}>
                     {/* Collapsed Row with Preset Styles */}
                     <div 
                       style={{
                         ...presetStyles.outer.row,
-                        ...(libraryLayout === 'list' ? { padding: '20px 48px' } : {}),
+                        ...(libraryLayout === 'list' ? { 
+                          padding: '24px 32px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                        } : {}),
                       }}
                       onMouseEnter={() => setHoveredHeuristic(h.id)}
                       onMouseLeave={() => setHoveredHeuristic(null)}
@@ -1648,102 +1649,98 @@ function App() {
                         setExpandedHeuristic(isExpanded ? null : h.id);
                       }}
                     >
-                      {/* ID */}
-                      <div style={{ 
-                        fontSize: '11px', 
-                        fontWeight: '400',
-                        fontFamily: 'monospace',
-                        color: colors.secondaryText,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                        letterSpacing: '0.02em',
-                        minWidth: libraryLayout === 'grid' ? 'auto' : '180px',
-                      }}>
-                        {h.id}
+                      {/* Left side: Element name as title + category info */}
+                      <div style={{ flex: 1 }}>
+                        <div style={{ 
+                          fontSize: '18px', 
+                          fontWeight: '500',
+                          color: colors.primaryText,
+                          marginBottom: '4px',
+                        }}>
+                          {(h.step1_who_element || 'Element').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                        </div>
+                        <div style={{ 
+                          fontSize: '14px',
+                          color: colors.secondaryText,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                        }}>
+                          <span>{(h.step3a_category || 'Layout').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
+                          {h.step2_where_parent && h.step2_where_parent !== 'any' && (
+                            <>
+                              <span>·</span>
+                              <span>{(h.step2_where_parent || '').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
+                            </>
+                          )}
+                        </div>
                       </div>
 
-                      {/* Category */}
-                      <div style={{ 
-                        fontSize: '13px',
-                        fontWeight: '400',
-                        color: colors.primaryText,
-                        letterSpacing: '0.01em',
-                        minWidth: libraryLayout === 'grid' ? 'auto' : '140px',
-                      }}>
-                        {(h.step3a_category || 'Layout').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                      </div>
-
-                      {/* Subject (Subcategory) */}
-                      <div style={{ 
-                        fontSize: '13px',
-                        fontWeight: '400',
-                        color: colors.primaryText,
-                        letterSpacing: '0.01em',
-                        minWidth: libraryLayout === 'grid' ? 'auto' : '140px',
-                      }}>
-                        {subject}
-                      </div>
-
-                      {/* Element */}
-                      <div style={{ 
-                        fontSize: '13px',
-                        fontWeight: '400',
-                        color: colors.primaryText,
-                        letterSpacing: '0.01em',
-                        flex: 1,
-                      }}>
-                        {(h.step1_who_element || '—').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                      </div>
-
-                      {/* Status */}
-                      <div onClick={(e) => e.stopPropagation()} style={{ minWidth: libraryLayout === 'grid' ? 'auto' : '100px' }}>
-                        <select
-                          value={h.status || 'Active'}
-                          onChange={(e) => updateStatus(h.id, e.target.value)}
-                          style={{
-                            padding: '6px 10px',
-                            fontSize: '11px',
-                            fontWeight: '400',
-                            border: `1px solid ${colors.border}`,
-                            borderRadius: '6px',
-                            background: (() => {
-                              const status = h.status || 'Active';
-                              if (status === 'Active') return '#F0FDF4';
-                              if (status === 'Pending') return '#FEF3C7';
-                              if (status === 'Canceled') return '#F4F4F5';
-                              return '#F0FDF4';
-                            })(),
-                            color: (() => {
-                              const status = h.status || 'Active';
-                              if (status === 'Active') return '#166534';
-                              if (status === 'Pending') return '#92400E';
-                              if (status === 'Canceled') return '#71717A';
-                              return '#166534';
-                            })(),
-                            cursor: 'pointer',
-                            outline: 'none',
-                            appearance: 'none',
-                            WebkitAppearance: 'none',
-                            MozAppearance: 'none',
-                            transition: 'all 150ms ease-out',
-                          }}
-                        >
-                          {STATUS_OPTIONS.map(status => (
-                            <option key={status.value} value={status.value}>{status.value}</option>
-                          ))}
-                        </select>
-                      </div>
-
-                      {/* Expand Icon */}
+                      {/* Right side: ID, Status, Chevron */}
                       <div style={{ 
                         display: 'flex', 
-                        justifyContent: 'center',
-                        transition: 'transform 200ms ease-out',
-                        transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                        minWidth: '32px',
+                        alignItems: 'center', 
+                        gap: '16px',
                       }}>
-                        <ChevronIcon style={{ width: 14, height: 14, color: colors.secondaryText }} />
+                        {/* ID */}
+                        <div style={{ 
+                          fontSize: '13px', 
+                          fontFamily: 'monospace',
+                          color: colors.secondaryText,
+                          background: colors.background,
+                          padding: '6px 12px',
+                          borderRadius: '6px',
+                        }}>
+                          {h.id}
+                        </div>
+
+                        {/* Status */}
+                        <div onClick={(e) => e.stopPropagation()}>
+                          <select
+                            value={h.status || 'Active'}
+                            onChange={(e) => updateStatus(h.id, e.target.value)}
+                            style={{
+                              padding: '6px 12px',
+                              fontSize: '13px',
+                              fontWeight: '500',
+                              border: 'none',
+                              borderRadius: '6px',
+                              background: (() => {
+                                const status = h.status || 'Active';
+                                if (status === 'Active') return '#F0FDF4';
+                                if (status === 'Pending') return '#FEF3C7';
+                                if (status === 'Canceled') return '#F4F4F5';
+                                return '#F0FDF4';
+                              })(),
+                              color: (() => {
+                                const status = h.status || 'Active';
+                                if (status === 'Active') return '#166534';
+                                if (status === 'Pending') return '#92400E';
+                                if (status === 'Canceled') return '#71717A';
+                                return '#166534';
+                              })(),
+                              cursor: 'pointer',
+                              outline: 'none',
+                              appearance: 'none',
+                              WebkitAppearance: 'none',
+                              MozAppearance: 'none',
+                            }}
+                          >
+                            {STATUS_OPTIONS.map(status => (
+                              <option key={status.value} value={status.value}>{status.value}</option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {/* Chevron Icon */}
+                        <div style={{ 
+                          transition: 'transform 200ms ease-out',
+                          transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                          display: 'flex',
+                          alignItems: 'center',
+                        }}>
+                          <ChevronIcon style={{ width: 18, height: 18, color: colors.secondaryText }} />
+                        </div>
                       </div>
                     </div>
 
